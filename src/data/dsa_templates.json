@@ -1,0 +1,285 @@
+{
+  "id": "dsa",
+  "title": "DSA Practice Templates",
+  "templates": [
+    {
+      "id": "dfs-graph-iterative",
+      "name": "DFS - Graph (Iterative)",
+      "topic": "Graphs",
+      "difficulty": "easy",
+      "example": "Traverse graph using stack. Push unvisited nodes and explore as far as possible before backtracking.",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "bfs-graph-iterative",
+      "name": "BFS - Graph (Iterative)",
+      "topic": "Graphs",
+      "difficulty": "easy",
+      "example": "Traverse graph level-by-level using queue. Visit all neighbors before moving to next level.",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "binary-tree-traversal-inorder",
+      "name": "Binary Tree - Inorder Traversal",
+      "topic": "Trees",
+      "difficulty": "easy",
+      "example": "Visit nodes in Left-Root-Right order. Use stack for iterative: go left first, then process node, then go right.",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "binary-tree-traversal-preorder",
+      "name": "Binary Tree - Preorder Traversal",
+      "topic": "Trees",
+      "difficulty": "easy",
+      "example": "Visit nodes in Root-Left-Right order. Process node first, then explore children.",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "binary-tree-traversal-postorder",
+      "name": "Binary Tree - Postorder Traversal",
+      "topic": "Trees",
+      "difficulty": "easy",
+      "example": "Visit nodes in Left-Right-Root order. Process children first, then the node.",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "binary-tree-levelorder",
+      "name": "Binary Tree - Level Order (BFS)",
+      "topic": "Trees",
+      "difficulty": "easy",
+      "example": "Traverse tree level by level. Use queue to maintain order of nodes at each level.",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "two-pointer-merge-sorted",
+      "name": "Two Pointer - Merge Sorted Arrays",
+      "topic": "Arrays",
+      "difficulty": "easy",
+      "example": "Merge two sorted arrays using two pointers from the back. Avoid overwriting by filling from end to start.",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "two-pointer-reverse",
+      "name": "Two Pointer - Reverse Array",
+      "topic": "Arrays",
+      "difficulty": "easy",
+      "example": "Reverse array with left and right pointers starting from ends. Swap and move inward.",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "two-pointer-remove-duplicates",
+      "name": "Two Pointer - Remove Duplicates",
+      "topic": "Arrays",
+      "difficulty": "easy",
+      "example": "Remove duplicates from sorted array in-place. Use one pointer for unique position, one for scanning.",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "sliding-window-max",
+      "name": "Sliding Window - Maximum in Window",
+      "topic": "Sliding Window",
+      "difficulty": "medium",
+      "example": "Find max in each k-sized window. Use deque to maintain useful elements in decreasing order.",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "sliding-window-longest-substring",
+      "name": "Sliding Window - Longest Substring Without Repeating",
+      "topic": "Sliding Window",
+      "difficulty": "medium",
+      "example": "Find longest substring without duplicate chars. Expand window with right pointer, contract with left if duplicate found.",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "sliding-window-min-window-substring",
+      "name": "Sliding Window - Minimum Window Substring",
+      "topic": "Sliding Window",
+      "difficulty": "hard",
+      "example": "Find smallest window containing all chars from target. Expand right, contract left, track minimum.",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "binary-search-sorted-array",
+      "name": "Binary Search - Sorted Array",
+      "topic": "Binary Search",
+      "difficulty": "easy",
+      "example": "Search element in sorted array. Eliminate half on each comparison using mid pointer.",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "binary-search-rotated-array",
+      "name": "Binary Search - Rotated Sorted Array",
+      "topic": "Binary Search",
+      "difficulty": "medium",
+      "example": "Search in rotated sorted array. Identify which half is sorted, then decide which side to search.",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "dynamic-programming-fib",
+      "name": "Dynamic Programming - Fibonacci",
+      "topic": "Dynamic Programming",
+      "difficulty": "easy",
+      "example": "Compute nth Fibonacci bottom-up. Build array from base cases: dp[i] = dp[i-1] + dp[i-2].",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "dynamic-programming-coin-change",
+      "name": "Dynamic Programming - Coin Change",
+      "topic": "Dynamic Programming",
+      "difficulty": "medium",
+      "example": "Minimum coins for amount. For each amount, try all coins and take minimum result.",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "dynamic-programming-knapsack",
+      "name": "Dynamic Programming - 0/1 Knapsack",
+      "topic": "Dynamic Programming",
+      "difficulty": "medium",
+      "example": "Max value with weight limit. For each item, decide include/exclude based on weight constraint.",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "bfs-shortest-path",
+      "name": "BFS - Shortest Path in Unweighted Graph",
+      "topic": "Graph Algorithms",
+      "difficulty": "medium",
+      "example": "Find shortest path between two nodes. BFS guarantees shortest path in unweighted graphs.",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "dijkstra-shortest-path",
+      "name": "Dijkstra - Shortest Path Weighted Graph",
+      "topic": "Graph Algorithms",
+      "difficulty": "hard",
+      "example": "Find shortest path with weights. Use priority queue, always process node with min distance.",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "topological-sort",
+      "name": "Topological Sort - DFS",
+      "topic": "Graph Algorithms",
+      "difficulty": "medium",
+      "example": "Order nodes such that parents before children. Use DFS with stack, add node after processing children.",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "heap-heapify",
+      "name": "Heap - Heapify",
+      "topic": "Heap",
+      "difficulty": "medium",
+      "example": "Convert array to heap. Heapify down from last parent node. O(N) time bottom-up.",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "heap-extract-max",
+      "name": "Heap - Extract Max",
+      "topic": "Heap",
+      "difficulty": "easy",
+      "example": "Remove max from heap. Swap last element to root, then heapify down to maintain property.",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "heap-insert",
+      "name": "Heap - Insert Element",
+      "topic": "Heap",
+      "difficulty": "easy",
+      "example": "Add element to heap. Insert at end, then heapify up (bubble up) to maintain property.",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "union-find-union",
+      "name": "Union-Find - Union Operation",
+      "topic": "Union-Find",
+      "difficulty": "medium",
+      "example": "Merge two sets. Find roots of both elements and connect one root to other.",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "union-find-find-with-path-compression",
+      "name": "Union-Find - Find with Path Compression",
+      "topic": "Union-Find",
+      "difficulty": "medium",
+      "example": "Find root efficiently. Optimize by making each node point directly to root (path compression).",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "linked-list-reverse",
+      "name": "Linked List - Reverse",
+      "topic": "Linked Lists",
+      "difficulty": "easy",
+      "example": "Reverse linked list in-place. Use three pointers: prev, current, next. Reverse links one by one.",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "linked-list-merge-sorted",
+      "name": "Linked List - Merge Two Sorted Lists",
+      "topic": "Linked Lists",
+      "difficulty": "easy",
+      "example": "Merge two sorted linked lists. Compare nodes, attach smaller to result, move pointer forward.",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "linked-list-cycle-detection",
+      "name": "Linked List - Cycle Detection",
+      "topic": "Linked Lists",
+      "difficulty": "medium",
+      "example": "Detect cycle using Floyd's algorithm. Slow (1 step) and fast (2 steps) pointers meet if cycle exists.",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "string-palindrome",
+      "name": "String - Check Palindrome",
+      "topic": "Strings",
+      "difficulty": "easy",
+      "example": "Check if string is palindrome. Compare chars from both ends moving inward.",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "string-anagram",
+      "name": "String - Check Anagram",
+      "topic": "Strings",
+      "difficulty": "easy",
+      "example": "Check if two strings are anagrams. Count characters, both should have same frequency.",
+      "status": "not_started",
+      "notes": ""
+    },
+    {
+      "id": "string-regex-pattern-matching",
+      "name": "String - Regex Pattern Matching",
+      "topic": "Strings",
+      "difficulty": "hard",
+      "example": "Match string with pattern containing . and *. Use 2D DP where dp[i][j] = match up to position i and j.",
+      "status": "not_started",
+      "notes": ""
+    }
+  ]
+}

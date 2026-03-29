@@ -1,0 +1,311 @@
+{
+  "id": "net",
+  "icon": "\ud83c\udf10",
+  "title": "Computer Networking Master Guide",
+  "bg": "#EEEDFE",
+  "questions": [
+    {
+      "q": "Explain the OSI Model. What are the 7 layers?",
+      "freq": true,
+      "d": "e",
+      "a": "The OSI (Open Systems Interconnection) model is a conceptual framework to understand network communication.<br><br><strong>7. Application:</strong> User-facing protocols (HTTP, FTP, SMTP, DNS).<br><strong>6. Presentation:</strong> Data translation, encryption, compression (SSL/TLS, JPEG, JSON).<br><strong>5. Session:</strong> Establishes, maintains, and terminates connections/sessions (Sockets, NetBIOS).<br><strong>4. Transport:</strong> Reliable/unreliable end-to-end delivery, multiplexing (TCP, UDP). Data unit: Segment.<br><strong>3. Network:</strong> Logical addressing and routing across multiple networks (IPv4, IPv6, ICMP, IPSec). Data unit: Packet.<br><strong>2. Data Link:</strong> Node-to-node delivery, MAC addressing, error detection (Ethernet, Wi-Fi, MAC). Data unit: Frame.<br><strong>1. Physical:</strong> Raw bit stream over physical medium (Cables, Radio waves, Hubs).",
+      "cross": [
+        "How does the TCP/IP model differ? \u2192 TCP/IP has 4 layers: Application (combines OSI 5, 6, 7), Transport, Internet (OSI 3), and Network Access (combines OSI 1, 2)."
+      ],
+      "trap": "Don't confuse the Network layer (IPs/Routers) with the Data Link layer (MACs/Switches). Routers connect different networks; Switches connect devices within the same network.",
+      "notes": ""
+    },
+    {
+      "q": "What is the difference between TCP and UDP? When to use which?",
+      "freq": true,
+      "d": "e",
+      "a": "<strong>TCP (Transmission Control Protocol):</strong><br>\u2014 Connection-oriented (requires 3-way handshake).<br>\u2014 Reliable (guarantees delivery via ACKs and retransmissions).<br>\u2014 Ordered (rearranges out-of-order packets via sequence numbers).<br>\u2014 Flow & Congestion control (prevents overwhelming receiver/network).<br>\u2014 Heavyweight header (20 bytes).<br>\u2014 <em>Use cases:</em> Web browsing (HTTP), Email (SMTP), File transfer (FTP), Database queries.<br><br><strong>UDP (User Datagram Protocol):</strong><br>\u2014 Connectionless (fire and forget).<br>\u2014 Unreliable (no delivery guarantee, packets can be dropped).<br>\u2014 Unordered (packets arrive in any order).<br>\u2014 No flow/congestion control.<br>\u2014 Lightweight header (8 bytes), extremely fast.<br>\u2014 <em>Use cases:</em> Video streaming, VoIP, Online gaming, DNS queries.",
+      "trap": "Never say UDP is 'insecure' and TCP is 'secure'. Neither is inherently encrypted. TLS can run over TCP, and DTLS/QUIC can run over UDP.",
+      "notes": ""
+    },
+    {
+      "q": "Walk through the TCP 3-way handshake and 4-way termination.",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>3-way Handshake (Connection Setup):</strong><br>1. <strong>SYN:</strong> Client sends a SYN packet with a random Initial Sequence Number (ISN_C). State: `SYN_SENT`.<br>2. <strong>SYN-ACK:</strong> Server receives it, sends a SYN-ACK. It acknowledges the client's ISN (ACK = ISN_C + 1) and provides its own random ISN (ISN_S). State: `SYN_RECEIVED`.<br>3. <strong>ACK:</strong> Client acknowledges the server's SYN (ACK = ISN_S + 1). State: `ESTABLISHED`.<br><em>Why 3 steps?</em> Both sides must prove they can reliably send AND receive.<br><br><strong>4-way Termination (Connection Teardown):</strong><br>1. Client sends <strong>FIN</strong> (I have no more data to send).<br>2. Server sends <strong>ACK</strong>. (Server can still send data to client \u2014 half-closed state).<br>3. Server finishes sending data, sends its own <strong>FIN</strong>.<br>4. Client sends <strong>ACK</strong> and enters `TIME_WAIT` state.",
+      "cross": [
+        "What is the TIME_WAIT state? \u2192 The client waits for 2x Maximum Segment Lifetime (usually 1-2 minutes) before fully closing the port to ensure any delayed packets from the network are absorbed and don't interfere with a future connection on the same port."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "What is TCP Flow Control vs Congestion Control?",
+      "freq": true,
+      "d": "h",
+      "a": "<strong>Flow Control (Protects the Receiver):</strong> Prevents a fast sender from overwhelming a slow receiver. In every ACK packet, the receiver advertises its 'Receive Window' (remaining buffer size). The sender restricts its unacknowledged packets to this size. If the window is 0, the sender stops and periodically sends probe packets.<br><br><strong>Congestion Control (Protects the Network):</strong> Prevents the sender from overwhelming the routers in the network. <br>\u2014 <em>Slow Start:</em> Sender starts with a small Congestion Window (cwnd) and doubles it every RTT.<br>\u2014 <em>Congestion Avoidance:</em> Once a threshold is reached, cwnd grows linearly.<br>\u2014 <em>Packet Loss:</em> If a packet drops (detected via 3 duplicate ACKs or timeout), TCP assumes network congestion and halves (or resets) the cwnd (Multiplicative Decrease).",
+      "trap": "Most candidates confuse the two. Memorize: Flow Control = Receiver's Buffer. Congestion Control = Network/Router capacity.",
+      "notes": ""
+    },
+    {
+      "q": "What happens exactly when you type 'google.com' into your browser?",
+      "freq": true,
+      "d": "m",
+      "a": "1. <strong>URL Parsing:</strong> Browser extracts protocol (HTTPS), domain (google.com), and path.<br>2. <strong>DNS Resolution:</strong> Browser checks cache -> OS cache -> Router cache -> ISP DNS -> Root/TLD/Authoritative servers to find the IP address.<br>3. <strong>ARP:</strong> The OS uses ARP to find the MAC address of the default gateway (Router) to send the packet out of the local network.<br>4. <strong>TCP Handshake:</strong> Browser initiates a 3-way handshake with the server IP on port 443.<br>5. <strong>TLS Handshake:</strong> Client and server negotiate cipher suites, verify SSL certificates, and establish a symmetric encryption key.<br>6. <strong>HTTP Request:</strong> Browser sends an encrypted `GET / HTTP/1.1` request.<br>7. <strong>HTTP Response:</strong> Server processes the request and sends back HTML.<br>8. <strong>Rendering:</strong> Browser parses HTML, builds the DOM tree, requests additional assets (CSS/JS), and paints the UI.",
+      "trap": "Don't forget the ARP and TLS steps. High-level engineers expect you to mention MAC address resolution and encryption negotiation.",
+      "notes": ""
+    },
+    {
+      "q": "Explain the DNS Resolution process in detail.",
+      "freq": true,
+      "d": "m",
+      "a": "If the IP is not in the Browser or OS cache, the OS queries a <strong>Recursive Resolver</strong> (usually provided by your ISP or 8.8.8.8).<br>If the Resolver doesn't have it cached, it performs a recursive lookup:<br>1. <strong>Root Nameserver:</strong> Resolver asks the Root server. Root says 'I don't know the IP, but here is the IP for the `.com` TLD server'.<br>2. <strong>TLD (Top-Level Domain) Server:</strong> Resolver asks the `.com` server. TLD says 'I don't know the IP, but here is the Authoritative Nameserver for `google.com`'.<br>3. <strong>Authoritative Nameserver:</strong> Resolver asks Google's nameserver. It replies with the actual `A Record` (IPv4 address).<br>4. The Resolver caches this IP (based on TTL) and returns it to the OS.",
+      "cross": [
+        "A Record vs CNAME? \u2192 'A' maps a domain to an IPv4 address. 'CNAME' maps an alias domain to a canonical domain (e.g., www.google.com -> google.com)."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "What is the difference between a MAC address and an IP address?",
+      "freq": true,
+      "d": "e",
+      "a": "<strong>MAC Address (Physical Address):</strong> Operates at Layer 2 (Data Link). It is a 48-bit address burned into the Network Interface Card (NIC) by the manufacturer. It is used for routing frames <strong>within the same local network (LAN)</strong> (Switch to Switch).<br><br><strong>IP Address (Logical Address):</strong> Operates at Layer 3 (Network). It is a 32-bit (IPv4) address assigned by the network administrator or DHCP. It is used for routing packets <strong>across different networks</strong> via the Internet (Router to Router).<br><br><em>Analogy:</em> The IP address is your house's postal address (used by the global post office to get the letter to your city). The MAC address is your specific physical mailbox (used by the local mailman to drop it in the exact slot).",
+      "cross": [
+        "How do they map to each other? \u2192 ARP (Address Resolution Protocol) broadcasts an IP address on the local network asking 'Who has this IP?'. The device replies with its MAC address."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "How does Ping and Traceroute work?",
+      "freq": false,
+      "d": "m",
+      "a": "Both use the <strong>ICMP (Internet Control Message Protocol)</strong>, which operates at Layer 3.<br><br><strong>Ping:</strong> Sends an `ICMP Echo Request` to an IP. If the host is alive and doesn't block ICMP, it returns an `ICMP Echo Reply`. Used to check connectivity and measure RTT (Round Trip Time).<br><br><strong>Traceroute:</strong> Maps the path packets take to a destination. It exploits the <strong>TTL (Time To Live)</strong> field in the IP header.<br>1. Sends a packet with TTL = 1. The 1st router decrements TTL to 0, drops it, and sends back an `ICMP Time Exceeded` message. (We now know router 1).<br>2. Sends a packet with TTL = 2. It reaches the 2nd router, TTL hits 0, returns ICMP. (We now know router 2).<br>3. Repeats until the packet reaches the destination.",
+      "notes": ""
+    },
+    {
+      "q": "Explain Subnetting and CIDR notation (e.g., /24).",
+      "freq": true,
+      "d": "m",
+      "a": "A <strong>Subnet</strong> is a logical subdivision of an IP network. It improves security and reduces broadcast traffic.<br>An IP address is split into two parts: a <strong>Network ID</strong> and a <strong>Host ID</strong>. The Subnet Mask determines where that split happens.<br><br><strong>CIDR (Classless Inter-Domain Routing) Notation:</strong> e.g., `192.168.1.0/24`.<br>The `/24` means the first 24 bits of the 32-bit IP address represent the Network ID. The remaining 8 bits are for Host IDs.<br>8 bits = 2^8 = 256 addresses.<br>\u2014 The first address (`.0`) is the Network Address.<br>\u2014 The last address (`.255`) is the Broadcast Address.<br>\u2014 Leaving 254 usable IPs for devices.",
+      "cross": [
+        "What are Private IP ranges? \u2192 IPs that are not routable on the public internet (RFC 1918). 10.x.x.x (Large enterprises), 172.16.x.x, and 192.168.x.x (Home networks)."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "What is NAT (Network Address Translation)?",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>NAT</strong> is a process used by routers to map multiple private IP addresses inside a local network to a single Public IP address for internet access. <br><em>Why?</em> Because IPv4 addresses (4.3 billion) ran out. NAT delayed the exhaustion.<br><br><strong>How it works (SNAT/Port Address Translation):</strong><br>1. Your laptop (`192.168.1.5:4000`) sends a request to Google.<br>2. The router intercepts it, replaces the private source IP with its own Public IP, and assigns a new random port (`203.0.113.1:8000`). It records this mapping in the <strong>NAT Table</strong>.<br>3. Google replies to `203.0.113.1:8000`.<br>4. The router checks the NAT table, rewrites the destination back to `192.168.1.5:4000`, and forwards it to your laptop.",
+      "trap": "NAT breaks the end-to-end principle of the internet, making Peer-to-Peer connections (like WebRTC or VoIP) very difficult because devices don't know their own public IPs.",
+      "notes": ""
+    },
+    {
+      "q": "How do WebRTC and P2P networks bypass NAT? (STUN/TURN)",
+      "freq": false,
+      "d": "h",
+      "a": "Because of NAT, a peer only knows its private IP, which another peer across the internet cannot route to. To establish a direct Peer-to-Peer connection:<br><br>1. <strong>STUN (Session Traversal Utilities for NAT):</strong> A public server that a client pings. The STUN server looks at the incoming packet and replies, 'Your public IP and Port mapped by your router is X:Y'. The client then shares X:Y with its peer.<br>2. <strong>ICE (Interactive Connectivity Establishment):</strong> A framework that tries to connect peers directly using the public IPs discovered via STUN.<br>3. <strong>TURN (Traversal Using Relays around NAT):</strong> If the router's NAT is extremely strict (Symmetric NAT) and blocks direct STUN connections, the peers fall back to a TURN server. TURN acts as a middleman relaying all data. It is slow and expensive, but guarantees connection.",
+      "notes": ""
+    },
+    {
+      "q": "What is the difference between IPv4 and IPv6?",
+      "freq": false,
+      "d": "e",
+      "a": "<strong>IPv4:</strong> 32-bit addresses (e.g., `192.168.1.1`). Total of ~4.3 billion addresses. Requires NAT to share IPs. Header is 20-60 bytes and includes a checksum.<br><br><strong>IPv6:</strong> 128-bit addresses (e.g., `2001:0db8:85a3:0000:0000:8a2e:0370:7334`). Total of 3.4\u00d710^38 addresses (enough for every atom on earth). <br>\u2014 Eliminates the need for NAT (every device gets a public IP).<br>\u2014 Built-in IPSec (better security by default).<br>\u2014 Simplified, fixed 40-byte header (no checksum calculation at the IP layer, making routing faster).",
+      "notes": ""
+    },
+    {
+      "q": "Explain DHCP and the DORA process.",
+      "freq": false,
+      "d": "m",
+      "a": "<strong>DHCP (Dynamic Host Configuration Protocol)</strong> automatically assigns IP addresses, Subnet Masks, and DNS server IPs to devices joining a network.<br><br>It uses a 4-step process called <strong>DORA</strong>:<br>1. <strong>Discover:</strong> Client broadcasts a DHCP Discover message (`255.255.255.255`) asking 'Is there a DHCP server here?'.<br>2. <strong>Offer:</strong> DHCP Server responds with an offered IP address and lease time.<br>3. <strong>Request:</strong> Client broadcasts a message accepting the specific IP offered (broadcasting ensures if multiple servers offered IPs, the others know their offer was rejected).<br>4. <strong>Acknowledge:</strong> Server sends an ACK confirming the lease.",
+      "notes": ""
+    },
+    {
+      "q": "Hub vs Switch vs Router.",
+      "freq": true,
+      "d": "e",
+      "a": "<strong>Hub (Layer 1 - Physical):</strong> Dumb device. When it receives a signal on one port, it blindly broadcasts it to ALL other ports. Causes massive packet collisions.<br><br><strong>Switch (Layer 2 - Data Link):</strong> Smart device. Maintains a <strong>MAC Address Table</strong> mapping MACs to specific physical ports. When a frame arrives, it forwards it ONLY to the specific port the destination MAC is on.<br><br><strong>Router (Layer 3 - Network):</strong> Connects entirely different networks together (e.g., your LAN to the WAN/Internet). Uses a <strong>Routing Table</strong> to forward packets based on logical IP addresses.",
+      "notes": ""
+    },
+    {
+      "q": "What is an ARP Table vs MAC Table vs Routing Table?",
+      "freq": true,
+      "d": "m",
+      "a": "\u2014 <strong>ARP Table (Found on Hosts/Routers):</strong> Maps an IP address to a MAC address. (e.g., `192.168.1.5 -> 00:1A:2B:3C:4D:5E`). Used to construct Layer 2 frames before sending them.<br>\u2014 <strong>MAC Table (Found on Switches):</strong> Maps a MAC address to a physical switch port. (e.g., `00:1A:2B:3C... is connected to Port 4`). Used by the switch to know which wire to push the frame down.<br>\u2014 <strong>Routing Table (Found on Routers):</strong> Maps destination IP Network prefixes to the Next-Hop Router IP or interface. Used to determine the best path to send a packet across the internet.",
+      "notes": ""
+    },
+    {
+      "q": "What is BGP (Border Gateway Protocol)?",
+      "freq": true,
+      "d": "h",
+      "a": "<strong>BGP</strong> is the routing protocol that makes the internet work. The internet is a network of networks called <strong>Autonomous Systems (AS)</strong> (e.g., Comcast, AT&T, Google).<br><br>BGP is an Exterior Gateway Protocol (EGP) used to route traffic BETWEEN these Autonomous Systems. It is a 'Path Vector' protocol. Instead of finding the fastest cable, it finds the shortest path of AS-hops to reach a destination prefix.<br>BGP tables are manually configured via peering agreements between ISPs. If an ISP advertises a bad BGP route, it can blackhole traffic for entire countries (BGP Hijacking).",
+      "cross": [
+        "What is OSPF? \u2192 Open Shortest Path First. An Interior Gateway Protocol (IGP) used to route traffic WITHIN a single organization's internal network using Dijkstra's algorithm to find the fastest physical link."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "Unicast vs Broadcast vs Multicast vs Anycast.",
+      "freq": true,
+      "d": "m",
+      "a": "\u2014 <strong>Unicast:</strong> 1-to-1. Sender sends a packet to a single specific IP.<br>\u2014 <strong>Broadcast:</strong> 1-to-All. Sender sends a packet to a special broadcast IP (`255.255.255.255`). Every device on the local network receives it. (Used by ARP and DHCP). Not routed across the internet.<br>\u2014 <strong>Multicast:</strong> 1-to-Many. Sender sends one packet to a specific Multicast IP group. Only devices subscribed to that group receive it. (Used for IPTV and stock market feeds).<br>\u2014 <strong>Anycast:</strong> 1-to-Nearest. Multiple servers globally share the exact <strong>same IP address</strong>. BGP routing automatically routes the user's packet to the geographically/topologically closest server. (Heavily used by CDNs like Cloudflare and DNS servers like `8.8.8.8`).",
+      "notes": ""
+    },
+    {
+      "q": "What is a CDN (Content Delivery Network)?",
+      "freq": true,
+      "d": "e",
+      "a": "A <strong>CDN</strong> is a globally distributed network of Edge Servers. <br>Instead of every user downloading images/videos directly from your Origin server in New York, a user in Tokyo will download the cached copy from a CDN Edge Server physically located in Tokyo.<br><br><strong>Benefits:</strong><br>1. Massively reduces latency (closer proximity).<br>2. Reduces bandwidth costs and load on your Origin server.<br>3. Provides DDoS protection (CDNs can absorb massive traffic floods).<br><br>CDNs use <strong>Anycast</strong> routing or Geo-DNS to direct users to the nearest edge node.",
+      "notes": ""
+    },
+    {
+      "q": "What is a Reverse Proxy vs a Forward Proxy?",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>Forward Proxy:</strong> Sits in front of <strong>Clients</strong>. When a client wants to access the internet, traffic goes through the proxy. It protects the client by hiding their IP address, bypassing geo-restrictions (like a VPN), or enforcing corporate content filtering.<br><br><strong>Reverse Proxy:</strong> Sits in front of <strong>Servers</strong>. When the internet tries to access your web server, traffic hits the reverse proxy first. It protects the server. <br><strong>Capabilities of a Reverse Proxy (e.g., Nginx):</strong><br>\u2014 Load Balancing.<br>\u2014 SSL/TLS Termination (decrypting HTTPS so backend servers don't have to).<br>\u2014 Caching static content.<br>\u2014 Compression (GZIP).<br>\u2014 Protection against DDoS attacks.",
+      "notes": ""
+    },
+    {
+      "q": "Layer 4 vs Layer 7 Load Balancer.",
+      "freq": true,
+      "d": "h",
+      "a": "<strong>Layer 4 Load Balancer (Transport Layer):</strong><br>Routes traffic based solely on IP addresses and TCP/UDP ports. It does NOT look at the packet payload (HTTP headers).<br>\u2014 Extremely fast, low CPU overhead.<br>\u2014 Can handle millions of connections.<br>\u2014 e.g., AWS NLB, HAProxy TCP mode.<br><br><strong>Layer 7 Load Balancer (Application Layer):</strong><br>Terminates the TCP connection, decrypts the TLS, and fully parses the HTTP request. It routes traffic intelligently based on URL paths (`/api` vs `/images`), HTTP headers, or Cookies.<br>\u2014 Enables 'Sticky Sessions' (routing the same user to the same server based on a cookie).<br>\u2014 Slower (more CPU required), but far more capable.<br>\u2014 e.g., AWS ALB, Nginx.",
+      "notes": ""
+    },
+    {
+      "q": "What is HTTP/1.1 vs HTTP/2 vs HTTP/3?",
+      "freq": true,
+      "d": "h",
+      "a": "<strong>HTTP/1.1:</strong> Text-based. Suffers from HTTP Head-of-Line (HoL) blocking \u2014 a single TCP connection can only handle one request at a time sequentially. Browsers open 6 TCP connections per domain as a workaround.<br><br><strong>HTTP/2:</strong> Binary framing. Introduces <strong>Multiplexing</strong>: multiple HTTP requests can be sent concurrently over a <em>single</em> TCP connection. Also introduces Header Compression (HPACK) and Server Push.<br><em>Problem:</em> It still suffers from TCP HoL blocking. If one TCP packet drops, ALL multiplexed HTTP streams halt until it is retransmitted.<br><br><strong>HTTP/3:</strong> Replaces TCP entirely with <strong>QUIC (runs over UDP)</strong>. QUIC handles reliability at the stream level. If a packet drops, only the specific stream missing that packet pauses; the other streams continue unimpeded. Features 0-RTT handshakes for much faster connection times.",
+      "notes": ""
+    },
+    {
+      "q": "What happens during a TLS 1.2 / 1.3 Handshake?",
+      "freq": false,
+      "d": "h",
+      "a": "TLS secures the HTTP connection via Asymmetric and Symmetric encryption.<br><br><strong>TLS 1.2 Handshake (2 Round Trips):</strong><br>1. <strong>ClientHello:</strong> Client sends supported Cipher suites and a Random Number.<br>2. <strong>ServerHello:</strong> Server selects a Cipher, sends its SSL Certificate (containing its Public Key), and a Random Number.<br>3. <strong>Verification:</strong> Client verifies the Cert against trusted Certificate Authorities (CAs).<br>4. <strong>Key Exchange:</strong> Client generates a Pre-Master Secret, encrypts it with the Server's Public Key, and sends it. Only the server's Private Key can decrypt it.<br>5. Both sides use the Random Numbers + Pre-Master Secret to generate the exact same <strong>Symmetric Session Key</strong>. All further HTTP traffic is encrypted using this fast symmetric key.<br><br><strong>TLS 1.3 Improvements:</strong> Reduces handshake to 1 RTT. Removes weak ciphers (RSA key exchange) and forces Perfect Forward Secrecy (using Ephemeral Diffie-Hellman).",
+      "notes": ""
+    },
+    {
+      "q": "What is SNI (Server Name Indication)?",
+      "freq": false,
+      "d": "h",
+      "a": "<strong>SNI</strong> is an extension to the TLS protocol.<br>Before SNI, a server could only host one SSL certificate per IP address. Because the TLS handshake happens <em>before</em> the HTTP request (where the `Host` header specifies which website you want), a server hosting 100 websites wouldn't know which SSL certificate to send to the client.<br><br>SNI solves this by requiring the client to include the target hostname (e.g., `google.com`) in the initial unencrypted `ClientHello` message of the TLS handshake. The server can then select and return the correct SSL certificate.",
+      "notes": ""
+    },
+    {
+      "q": "Explain HTTP Status Codes (2xx, 3xx, 4xx, 5xx).",
+      "freq": true,
+      "d": "e",
+      "a": "\u2014 <strong>2xx (Success):</strong> `200 OK` (Standard success), `201 Created` (Resource created via POST), `204 No Content` (Success, but no body returned).<br>\u2014 <strong>3xx (Redirection):</strong> `301 Moved Permanently` (SEO passes to new URL, browser caches it), `302 Found` (Temporary redirect).<br>\u2014 <strong>4xx (Client Error):</strong> `400 Bad Request` (Invalid syntax/body), `401 Unauthorized` (Not logged in / bad token), `403 Forbidden` (Logged in, but lack permissions), `404 Not Found`, `429 Too Many Requests` (Rate limited).<br>\u2014 <strong>5xx (Server Error):</strong> `500 Internal Server Error` (App crashed), `502 Bad Gateway` (Reverse proxy got an invalid response from backend), `503 Service Unavailable` (Server overloaded/down), `504 Gateway Timeout`.",
+      "notes": ""
+    },
+    {
+      "q": "What are HTTP Methods? What does Idempotency mean?",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>Idempotency</strong> means making the exact same request multiple times has the same effect on the server state as making it once. Crucial for safely retrying failed network requests.<br><br>\u2014 <strong>GET:</strong> Retrieves data. Safe and Idempotent.<br>\u2014 <strong>POST:</strong> Creates a new resource. <em>NOT Idempotent</em> (clicking checkout twice charges you twice).<br>\u2014 <strong>PUT:</strong> Replaces an entire resource. Idempotent (updating name to 'John' 5 times leaves it as 'John').<br>\u2014 <strong>PATCH:</strong> Partially updates a resource. Generally considered NOT strictly idempotent, though often implemented as such.<br>\u2014 <strong>DELETE:</strong> Removes a resource. Idempotent (deleting user 5 multiple times results in user 5 not existing).",
+      "notes": ""
+    },
+    {
+      "q": "What is CORS (Cross-Origin Resource Sharing)?",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>CORS</strong> is a security mechanism enforced by <strong>Browsers</strong>.<br>By default, the Same-Origin Policy prevents a frontend hosted on `domain-a.com` from making API requests to `domain-b.com`. This prevents malicious sites from stealing data on your behalf.<br><br>To allow this, the API server (`domain-b.com`) must return specific CORS headers (`Access-Control-Allow-Origin: domain-a.com`).<br><br><strong>Preflight Request:</strong> If the request is 'complex' (e.g., uses PUT/DELETE, or sends JSON with `Content-Type: application/json`), the browser will automatically pause the request and send an HTTP `OPTIONS` request first. It asks the server 'Am I allowed to send a POST request here?'. If the server replies yes, the browser sends the actual POST request.",
+      "notes": ""
+    },
+    {
+      "q": "Session Cookies vs JWT (JSON Web Tokens).",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>Session Cookies (Stateful):</strong> <br>User logs in. Server generates a random Session ID, saves it in a Database/Redis, and sends it to the client as a Cookie. On every request, the cookie is sent, and the server does a DB lookup to verify it.<br><em>Pros:</em> Easy to revoke instantly. <em>Cons:</em> Harder to scale (requires a centralized session DB).<br><br><strong>JWT (Stateless):</strong><br>User logs in. Server creates a JSON payload (e.g., `user_id: 123`), mathematically signs it using a Secret Key, and sends it to the client. On every request, the server recalculates the signature. If it matches, the token is valid. <strong>No DB lookup needed.</strong><br><em>Pros:</em> Highly scalable for microservices. <em>Cons:</em> Cannot be easily revoked before expiration (requires complex blacklists). Payload is readable by anyone (do not store passwords in it).",
+      "notes": ""
+    },
+    {
+      "q": "Cookies vs LocalStorage vs SessionStorage.",
+      "freq": true,
+      "d": "e",
+      "a": "<strong>Cookies:</strong> Small (4KB). Automatically attached to every HTTP request sent to that domain. <br><em>Security:</em> Vulnerable to CSRF attacks. If marked `HttpOnly`, JavaScript cannot access them (protects against XSS). If marked `Secure`, only sent over HTTPS.<br><br><strong>LocalStorage:</strong> Larger (5-10MB). Stored in the browser indefinitely until manually cleared. NEVER sent automatically with HTTP requests; must be manually attached to headers via JS. <br><em>Security:</em> Highly vulnerable to XSS (malicious JS can easily read/steal it). Safe from CSRF.<br><br><strong>SessionStorage:</strong> Same as LocalStorage, but data is cleared the moment the specific browser tab is closed.",
+      "notes": ""
+    },
+    {
+      "q": "What is CSRF (Cross-Site Request Forgery) and how to prevent it?",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>CSRF</strong> is an attack that tricks a victim into submitting a malicious request on a site where they are currently authenticated.<br>Because browsers automatically send Cookies with requests, if you are logged into `bank.com`, and a malicious site has a hidden form that submits a POST request to `bank.com/transfer`, your browser will attach your authentication cookie, and the bank will process the transfer.<br><br><strong>Prevention:</strong><br>1. <strong>Anti-CSRF Tokens:</strong> The server generates a unique, random token injected into the frontend HTML. The frontend must submit this token with POST requests. The malicious site cannot read this token due to the Same-Origin Policy.<br>2. <strong>SameSite Cookie Attribute:</strong> Setting `SameSite=Strict` or `Lax` on your authentication cookies tells the browser NOT to send the cookie if the request originated from a different domain.",
+      "notes": ""
+    },
+    {
+      "q": "What is XSS (Cross-Site Scripting) and how to prevent it?",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>XSS</strong> occurs when an attacker injects malicious JavaScript into a legitimate website, which is then executed in the victim's browser. This allows the attacker to steal LocalStorage tokens, hijack sessions, or modify the DOM.<br><br><strong>Types:</strong><br>\u2014 <em>Stored:</em> Malicious script is saved in the DB (e.g., a forum comment) and served to all users.<br>\u2014 <em>Reflected:</em> Script is embedded in a URL parameter and immediately echoed back by the server.<br><br><strong>Prevention:</strong><br>1. <strong>Encode/Escape output:</strong> Convert `<script>` to `&lt;script&gt;` before rendering it in HTML (most frameworks like React do this by default).<br>2. <strong>Content Security Policy (CSP):</strong> An HTTP header that restricts which domains the browser is allowed to load scripts from.<br>3. <strong>HttpOnly Cookies:</strong> Prevents XSS scripts from reading sensitive auth cookies via `document.cookie`.",
+      "notes": ""
+    },
+    {
+      "q": "REST vs GraphQL vs gRPC.",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>REST:</strong> Uses standard HTTP methods (GET, POST) and URLs mapped to resources (`/users/123`). Payload is usually JSON. Suffers from Over-fetching (getting more data than needed) and Under-fetching (requiring multiple requests).<br><br><strong>GraphQL:</strong> Developed by Facebook. A single endpoint (`/graphql`). The client specifies exactly the shape of the data it wants in a query language, solving over/under-fetching. Payload is JSON. Excellent for complex mobile apps. Harder to cache at the network layer.<br><br><strong>gRPC:</strong> Developed by Google. Uses HTTP/2 and <strong>Protocol Buffers (Protobufs)</strong> instead of JSON. Data is serialized into a highly compressed binary format. Extremely fast, strongly typed, and supports bidirectional streaming. Primarily used for internal Microservice-to-Microservice communication, not for web browsers.",
+      "notes": ""
+    },
+    {
+      "q": "Explain different types of DDoS Attacks and mitigations.",
+      "freq": true,
+      "d": "h",
+      "a": "<strong>DDoS (Distributed Denial of Service)</strong> aims to overwhelm a system.<br><br><strong>1. Volumetric Attacks (Layer 3/4):</strong> Overwhelms bandwidth. e.g., <em>NTP/DNS Amplification</em>. Attacker spoofs the victim's IP and requests massive data from public DNS servers. The servers send giant replies to the victim, flooding their pipe. <br><em>Mitigation:</em> Anycast CDNs (Cloudflare) to absorb the bandwidth globally.<br><br><strong>2. Protocol Attacks (Layer 4):</strong> Overwhelms server resources. e.g., <em>SYN Flood</em>. Attacker sends millions of TCP SYN packets but never completes the handshake. Server allocates memory for half-open connections until it crashes.<br><em>Mitigation:</em> SYN Cookies. Server calculates a cryptographic hash and sends it back as the ISN, allocating zero memory until the final ACK returns.<br><br><strong>3. Application Attacks (Layer 7):</strong> Overwhelms the application logic. e.g., <em>HTTP Flood</em>. Attacker sends thousands of legitimate-looking heavy requests (e.g., Database search queries). Hardest to detect.<br><em>Mitigation:</em> Web Application Firewalls (WAF), Rate Limiting, CAPTCHAs.",
+      "notes": ""
+    },
+    {
+      "q": "What is MTU and IP Fragmentation? What is MSS?",
+      "freq": false,
+      "d": "h",
+      "a": "<strong>MTU (Maximum Transmission Unit):</strong> Operates at Layer 3 (Network). It is the maximum size of an IP Packet that can be transmitted over a physical network link (usually 1500 bytes for Ethernet).<br>If a router receives a packet larger than the next link's MTU, it must chop the packet into smaller pieces. This is called <strong>IP Fragmentation</strong>. It introduces CPU overhead and unreliability (if one fragment drops, the whole packet is ruined).<br><br><strong>MSS (Maximum Segment Size):</strong> Operates at Layer 4 (Transport). It is the maximum payload size TCP will put into a single segment. It is calculated during the TCP Handshake to <em>actively prevent</em> IP Fragmentation.<br>MSS = MTU (1500) - IP Header (20) - TCP Header (20) = 1460 bytes. TCP will never send more than 1460 bytes of data in a single packet.",
+      "notes": ""
+    },
+    {
+      "q": "What is a VLAN (Virtual LAN)?",
+      "freq": false,
+      "d": "m",
+      "a": "A <strong>VLAN</strong> allows network administrators to logically divide a single physical network switch into multiple isolated broadcast domains.<br><br>For example, computers on Port 1-10 are assigned to VLAN 10 (HR), and Ports 11-20 are assigned to VLAN 20 (Engineering). Even though they are plugged into the exact same physical switch, a computer in HR cannot communicate with or see broadcast traffic from a computer in Engineering, exactly as if they were on separate physical switches.<br>To route traffic between different VLANs, a Router (or Layer 3 switch) is required. Implemented using 802.1Q tags in the Ethernet frame.",
+      "notes": ""
+    },
+    {
+      "q": "What is a VPN (Virtual Private Network) and IPSec?",
+      "freq": false,
+      "d": "h",
+      "a": "A <strong>VPN</strong> creates a secure, encrypted tunnel across an untrusted network (the Internet) between a client and a private network.<br><br><strong>IPSec (Internet Protocol Security):</strong> A suite of protocols operating at Layer 3 (Network) used to implement VPNs.<br>It does two main things:<br>1. <strong>Authentication (AH):</strong> Ensures the packet actually came from the sender and hasn't been tampered with.<br>2. <strong>Encryption (ESP):</strong> Encrypts the payload of the IP packet.<br>In <em>Tunnel Mode</em>, the entire original IP packet is encrypted and wrapped inside a brand new IP packet with the VPN Gateway's public IP. This completely hides the original sender and receiver from ISPs.",
+      "notes": ""
+    },
+    {
+      "q": "What is the difference between TCP Keep-Alive and HTTP Keep-Alive?",
+      "freq": false,
+      "d": "h",
+      "a": "<strong>HTTP Keep-Alive (Persistent Connections):</strong> An Application Layer feature. Normally, HTTP/1.0 closes the TCP connection after a single request/response. With the `Connection: keep-alive` header, the browser and server agree to leave the TCP connection open. This avoids the massive latency penalty of doing a 3-way handshake and TLS handshake for every image, CSS, and JS file on a page.<br><br><strong>TCP Keep-Alive:</strong> A Transport Layer feature. If a connection is idle for a long time (e.g., an open SSH terminal), intermediate NAT routers or Firewalls might aggressively drop the connection to save memory. TCP Keep-Alive periodically sends an empty 'probe' packet to the peer to verify it's still there and to trick routers into resetting their idle timers, keeping the tunnel alive.",
+      "notes": ""
+    },
+    {
+      "q": "Explain Symmetric vs Asymmetric Encryption in the context of HTTPS.",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>Symmetric Encryption (e.g., AES):</strong> Uses the <em>exact same key</em> to encrypt and decrypt data. It is extremely fast and efficient for bulk data transfer. Problem: How do you safely share the key over the internet without someone stealing it?<br><br><strong>Asymmetric Encryption (e.g., RSA):</strong> Uses a mathematically linked pair of keys: a Public Key (given to everyone) and a Private Key (kept secret). Data encrypted with the Public Key can ONLY be decrypted by the Private Key. It is highly secure but extremely slow.<br><br><strong>How HTTPS uses both:</strong><br>During the TLS Handshake, Asymmetric encryption is used. The client uses the Server's Public Key to securely send a randomly generated 'Secret'. Once the server decrypts this, both sides now share a secret. They then use this shared secret to generate a <strong>Symmetric Session Key</strong>, which is used to quickly encrypt all the actual HTTP data.",
+      "notes": ""
+    },
+    {
+      "q": "What is WebSocket? How is it different from HTTP Long-Polling?",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>Problem:</strong> HTTP is strictly Request-Response. The server cannot push live updates (like chat messages) to the client without the client asking for it.<br><br><strong>Long-Polling (The Hack):</strong> Client makes an HTTP request. The server intentionally holds the connection open and does not respond until new data arrives. Once the server responds, the client immediately opens a new Long-Poll request. High overhead and latency.<br><br><strong>WebSocket (The Solution):</strong> The client makes a standard HTTP request with an `Upgrade: websocket` header. If the server agrees, the connection is upgraded from HTTP to the WebSocket protocol. <br>It becomes a persistent, full-duplex, bidirectional TCP tunnel. Both client and server can push lightweight messages to each other at any time instantly. Used for Chat apps, Multiplayer games, and Live stock tickers.",
+      "notes": ""
+    },
+    {
+      "q": "What is a Firewall? Stateless vs Stateful.",
+      "freq": true,
+      "d": "m",
+      "a": "A <strong>Firewall</strong> monitors and controls network traffic based on security rules.<br><br><strong>Stateless Firewall:</strong> Inspects packets individually in isolation. It only looks at the Layer 3/4 headers (Source/Dest IP, Port, Protocol). If you block inbound port 80, but allow outbound port 80, it will accidentally block the return traffic of your own outbound requests, requiring complex two-way rules.<br><br><strong>Stateful Firewall:</strong> Intelligent. It maintains a <em>State Table</em> tracking active connections (e.g., recognizing a TCP handshake). If a computer inside the network initiates an outbound connection, the firewall automatically permits the corresponding inbound return traffic, drastically simplifying rule management. Almost all modern firewalls are stateful.",
+      "notes": ""
+    },
+    {
+      "q": "What is Web Application Firewall (WAF)?",
+      "freq": false,
+      "d": "e",
+      "a": "A standard Network Firewall (Layer 3/4) only blocks IPs and Ports. It cannot see if a packet sent to Port 443 contains a malicious database command.<br><br>A <strong>WAF (Web Application Firewall)</strong> operates at Layer 7. It intercepts and deeply inspects the actual HTTP payloads (URLs, Headers, JSON bodies) before they reach the web server.<br>It actively blocks Application-layer attacks defined by the OWASP Top 10, such as:<br>\u2014 SQL Injection (SQLi)<br>\u2014 Cross-Site Scripting (XSS)<br>\u2014 Malformed HTTP requests<br>\u2014 Automated bot scraping and Layer 7 DDoS attacks.",
+      "notes": ""
+    }
+  ]
+}

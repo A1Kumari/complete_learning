@@ -1,0 +1,243 @@
+{
+  "id": "oop",
+  "icon": "\ud83e\uddf1",
+  "title": "Object-Oriented Programming Master Guide",
+  "bg": "#E1F5EE",
+  "questions": [
+    {
+      "q": "What are the 4 Pillars of OOP? Explain each briefly.",
+      "freq": true,
+      "d": "e",
+      "a": "The four fundamental principles of Object-Oriented Programming are:<br><br><strong>1. Encapsulation:</strong> Bundling data (attributes) and methods (functions) into a single unit (class) and restricting direct access to some of the object's components (using access modifiers like private/protected).<br><strong>2. Abstraction:</strong> Hiding complex implementation details and showing only the essential features of an object. Achieved via abstract classes and interfaces.<br><strong>3. Inheritance:</strong> A mechanism where a new class derives properties and behaviors from an existing class. Promotes code reusability (IS-A relationship).<br><strong>4. Polymorphism:</strong> The ability of a single interface to represent different underlying forms (data types or classes). Achieved via method overloading (compile-time) and method overriding (run-time).",
+      "cross": [
+        "What is the difference between Abstraction and Encapsulation? \u2192 Abstraction hides complexity (WHAT it does). Encapsulation hides internal state (HOW it does it)."
+      ],
+      "trap": "Don't just list them. Be prepared to explain how they interact (e.g., Encapsulation is the tool used to achieve Information Hiding, which supports Abstraction).",
+      "notes": ""
+    },
+    {
+      "q": "What is the difference between Abstraction and Encapsulation?",
+      "freq": true,
+      "d": "m",
+      "a": "Though often confused, they serve different purposes:<br><br><strong>Encapsulation (Information Hiding):</strong> Focuses on <em>security and state protection</em>. It groups data and methods together and hides the internal state from the outside world using `private` or `protected` modifiers. <br><em>Example:</em> Making a `balance` field private and only allowing updates via `deposit()` and `withdraw()` methods.<br><br><strong>Abstraction (Implementation Hiding):</strong> Focuses on <em>reducing complexity</em>. It hides the complex internal implementation details and exposes only the relevant operations to the user.<br><em>Example:</em> A `Car` interface with a `startEngine()` method. The driver doesn't need to know if it's an electric or combustion engine; they just call `startEngine()`.",
+      "trap": "Encapsulation is about 'hiding the data'. Abstraction is about 'hiding the complexity'.",
+      "notes": ""
+    },
+    {
+      "q": "Explain polymorphism deeply \u2014 static vs dynamic binding.",
+      "freq": true,
+      "d": "h",
+      "a": "<strong>Polymorphism</strong> = one interface, many implementations. 'Poly' = many, 'morph' = form.<br><br><strong>Static (Compile-time) Polymorphism \u2014 Method Overloading:</strong><br>The compiler determines which method to call at compile time based on the method signature (name + parameter types). Also called early binding.<br>Example: <code>print(int x)</code> and <code>print(String s)</code>.<br><br><strong>Dynamic (Runtime) Polymorphism \u2014 Method Overriding:</strong><br>The method to call is determined at runtime based on the actual type of the object, not the declared reference type. Late binding.<br>Example: <code>Shape s = new Circle(); s.draw();</code> \u2014 Circle's draw() is called.<br><br><strong>How it works internally (vtable):</strong> In C++/Java, each class with virtual methods has a vtable (virtual table) \u2014 an array of function pointers. Each object holds a hidden pointer to its class's vtable. At runtime, the OS looks up the vtable to execute the correct method.",
+      "cross": [
+        "Can you achieve runtime polymorphism without inheritance? \u2192 Yes, via interfaces (Java/C#) or Duck Typing (Python/JavaScript)."
+      ],
+      "trap": "When explaining runtime polymorphism, mention the 'vtable' mechanism. It shows deep systems-level understanding that separates senior candidates from juniors.",
+      "notes": ""
+    },
+    {
+      "q": "Abstract Class vs Interface. When should you use which?",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>Abstract Class:</strong><br>\u2014 Can have both abstract (unimplemented) and concrete (implemented) methods.<br>\u2014 Can have state (instance variables/fields).<br>\u2014 Supports constructors.<br>\u2014 A class can inherit only ONE abstract class.<br>\u2014 <em>Use when:</em> Classes share a core identity or common base code (e.g., `Dog` and `Cat` extending `Animal` with a shared `age` field).<br><br><strong>Interface:</strong><br>\u2014 Traditionally only contains abstract methods (though Java 8+ allows `default` methods).<br>\u2014 Cannot hold instance state (only `static final` constants).<br>\u2014 No constructors.<br>\u2014 A class can implement MULTIPLE interfaces.<br>\u2014 <em>Use when:</em> You want to define a contract or capability across entirely unrelated classes (e.g., `Flyable` implemented by `Bird` and `Airplane`).",
+      "trap": "Since Java 8 introduced 'default' methods in interfaces, the line blurred. The defining difference now is STATE. Abstract classes can hold instance variables (state); Interfaces cannot.",
+      "notes": ""
+    },
+    {
+      "q": "Composition vs Inheritance. Why favor composition?",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>Inheritance (IS-A relationship):</strong> A class derives from a base class. Creates a rigid, tightly coupled hierarchy. <br><em>Problem:</em> The 'Fragile Base Class' problem \u2014 a change in the parent breaks all children. It also locks you into a single hierarchy (no multiple inheritance in Java/C#).<br><br><strong>Composition (HAS-A relationship):</strong> A class contains instances of other classes to achieve desired functionality.<br><em>Advantage:</em> Highly flexible and loosely coupled. You can change behaviors at runtime by swapping out the composed objects (Strategy Pattern).<br><br><strong>Example:</strong> Instead of `class RobotDog extends Dog` (Inheritance), use `class RobotDog { BarkBehavior b; }` (Composition). If you want it to bark like a machine, just inject a `MachineBark` object.",
+      "cross": [
+        "What Design Pattern relies heavily on Composition over Inheritance? \u2192 The Strategy Pattern and the Decorator Pattern."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "Explain Association, Aggregation, and Composition.",
+      "freq": false,
+      "d": "h",
+      "a": "These define the relationships between objects in UML.<br><br><strong>1. Association:</strong> A general relationship where all objects have their own lifecycle and there is no owner. <br><em>Example:</em> `Teacher` and `Student`. A teacher has many students, students have many teachers. If a teacher leaves, the student still exists.<br><br><strong>2. Aggregation (Weak HAS-A):</strong> A specialized association with a 'whole-part' relationship, but the child can exist independently of the parent.<br><em>Example:</em> `Department` and `Professor`. If the Department closes, the Professor still exists and can join another department.<br><br><strong>3. Composition (Strong HAS-A):</strong> A strict 'whole-part' relationship where the child's lifecycle is strictly tied to the parent. If the parent is destroyed, the child is destroyed.<br><em>Example:</em> `House` and `Room`. If the house is demolished, the rooms cease to exist.",
+      "trap": "Aggregation = independent lifecycle. Composition = dependent lifecycle.",
+      "notes": ""
+    },
+    {
+      "q": "What is the Diamond Problem in Multiple Inheritance?",
+      "freq": true,
+      "d": "h",
+      "a": "The <strong>Diamond Problem</strong> occurs in languages supporting multiple inheritance (like C++) when a class inherits from two classes that both inherit from a common base class. It creates ambiguity: which version of the base class method/attribute should be used?<br><br><strong>Example:</strong> Class `A` has `hello()`. `B` and `C` inherit `A` and override `hello()`. `D` inherits from both `B` and `C`. If `D` calls `hello()`, which one runs?<br><br><strong>Solutions:</strong><br>\u2014 <strong>C++:</strong> Use `virtual` inheritance so `B` and `C` share a single instance of `A`.<br>\u2014 <strong>Java/C#:</strong> Avoided entirely by banning multiple inheritance for classes. (If multiple Interfaces have the same default method, the compiler forces `D` to override it and resolve the conflict).<br>\u2014 <strong>Python:</strong> Uses MRO (Method Resolution Order) and the C3 Linearization algorithm to create a strict, predictable left-to-right lookup order.",
+      "cross": [
+        "What is MRO in Python? \u2192 The algorithm that determines the order in which base classes are searched for a method."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "Explain Coupling and Cohesion.",
+      "freq": true,
+      "d": "m",
+      "a": "They are metrics of software architecture quality. The goal is always <strong>Loose Coupling and High Cohesion</strong>.<br><br><strong>Cohesion (Inside a module):</strong> How closely related and focused the responsibilities of a single class/module are. <br><em>High Cohesion:</em> A `UserRepository` class only handles database operations for Users. (Good - follows Single Responsibility Principle).<br><em>Low Cohesion:</em> A `Utility` class that parses XML, sends emails, and calculates taxes. (Bad - spaghetti code).<br><br><strong>Coupling (Between modules):</strong> The degree of interdependence between different classes/modules.<br><em>Tight Coupling:</em> Class A directly instantiates Class B (`new MySQLDatabase()`). If B changes, A breaks.<br><em>Loose Coupling:</em> Class A depends on an Interface that Class B implements (Dependency Injection). You can swap B without touching A.",
+      "trap": "Remember: Cohesion is about 'Focus' (Internal). Coupling is about 'Dependencies' (External).",
+      "notes": ""
+    },
+    {
+      "q": "What is the SOLID acronym? Briefly explain each.",
+      "freq": true,
+      "d": "h",
+      "a": "SOLID represents five design principles for maintainable OOP:<br><br><strong>S - Single Responsibility Principle:</strong> A class should have only one reason to change (one job).<br><strong>O - Open/Closed Principle:</strong> Classes should be open for extension but closed for modification. Add new features via new classes, not by altering existing code.<br><strong>L - Liskov Substitution Principle:</strong> Subclasses must be completely substitutable for their base classes without altering program correctness.<br><strong>I - Interface Segregation Principle:</strong> Don't force a class to implement an interface it doesn't use. Split large 'fat' interfaces into smaller, specific ones.<br><strong>D - Dependency Inversion Principle:</strong> High-level modules shouldn't depend on low-level modules. Both should depend on abstractions (interfaces).",
+      "cross": [
+        "How is Dependency Inversion different from Dependency Injection? \u2192 Inversion is the architectural *Principle* (depend on interfaces). Injection is the *Pattern/Mechanism* used to achieve it (passing the interface implementation via constructor)."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "Explain the Liskov Substitution Principle (LSP) with a violation example.",
+      "freq": true,
+      "d": "h",
+      "a": "<strong>LSP:</strong> If Class B is a child of Class A, you should be able to replace A with B anywhere in the code without breaking the program.<br><br><strong>Classic Violation (Square-Rectangle Problem):</strong><br>Assume `Rectangle` has `setWidth()` and `setHeight()`.<br>`Square` extends `Rectangle`. To enforce mathematical rules, `Square` overrides both setters to always make width and height equal.<br>Now, a function expects a Rectangle: <br><code>void resize(Rectangle r) { r.setWidth(5); r.setHeight(10); assert(r.getArea() == 50); }</code><br>If you pass a `Square` into this function, the assert FAILS (area will be 100). `Square` changed the expected behavior of `Rectangle`, violating LSP.<br><br><strong>Fix:</strong> Do not use inheritance here. `Square` and `Rectangle` should implement a common `Shape` interface instead.",
+      "trap": "LSP isn't just about syntax compiling. It's about Behavioral Subtyping \u2014 ensuring invariants, preconditions, and postconditions of the parent are honored by the child.",
+      "notes": ""
+    },
+    {
+      "q": "Explain the Open/Closed Principle (OCP) with an example.",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>OCP:</strong> Software entities should be Open for extension, but Closed for modification.<br><br><strong>Violation:</strong><br><code>void processPayment(Payment p) {<br>  if (p.type == \"CREDIT\") processCredit();<br>  else if (p.type == \"PAYPAL\") processPayPal();<br>}</code><br>If you add 'Crypto', you must modify this existing, tested function. This violates OCP.<br><br><strong>Proper OCP Implementation (Polymorphism):</strong><br>Create a `PaymentMethod` interface with a `pay()` method.<br>Create `CreditPayment` and `PayPalPayment` classes that implement it.<br><code>void processPayment(PaymentMethod p) { p.pay(); }</code><br>To add Crypto, simply create a new `CryptoPayment` class. The `processPayment` function is completely unchanged (Closed for modification), but the system supports new payments (Open for extension).",
+      "notes": ""
+    },
+    {
+      "q": "What is the difference between Deep Copy and Shallow Copy?",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>Shallow Copy:</strong> Creates a new object, but only copies the <em>memory addresses (references)</em> of nested objects. <br>If Object A contains an array, a Shallow Copy creates Object B, but B's array points to the exact same memory location as A's array. Mutating the array in B will mutate it in A.<br><br><strong>Deep Copy:</strong> Creates a completely new object and recursively copies all nested objects by allocating new memory for them. Object A and Object B are entirely independent. Mutating B has zero effect on A.",
+      "cross": [
+        "How do you implement a Deep Copy in Java? \u2192 Implement the `Cloneable` interface and recursively call `clone()` on mutable fields, or use a Copy Constructor, or Serialize/Deserialize the object."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "What is the Singleton Pattern? How do you make it Thread-Safe?",
+      "freq": true,
+      "d": "h",
+      "a": "The <strong>Singleton Pattern</strong> ensures a class has only ONE instance and provides a global point of access to it.<br><br><strong>Implementation Steps:</strong><br>1. Make the constructor `private`.<br>2. Create a `private static` instance of the class.<br>3. Provide a `public static getInstance()` method to return that instance.<br><br><strong>Thread-Safety (Double-Checked Locking):</strong><br>If two threads call `getInstance()` simultaneously on startup, two instances might be created. <br><code>if (instance == null) {<br>  synchronized (Singleton.class) {<br>    if (instance == null) { instance = new Singleton(); }<br>  }<br>}</code><br><em>Crucial:</em> In Java, the instance variable MUST be declared `volatile` to prevent cache incoherence and instruction reordering during initialization.",
+      "cross": [
+        "How can a Singleton be broken? \u2192 Through Reflection (making the private constructor accessible), Serialization (deserializing creates a new instance), or Cloning.",
+        "What is the best way to implement Singleton in Java? \u2192 Using an `enum`. It natively prevents Reflection and Serialization issues."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "What is the Factory Method Pattern?",
+      "freq": true,
+      "d": "m",
+      "a": "The <strong>Factory Pattern</strong> is a Creational design pattern that delegates the instantiation logic of objects to a separate method or class, rather than calling `new` directly in the client code.<br><br><strong>Why use it?</strong><br>It promotes loose coupling and adherence to the Open/Closed Principle.<br>Instead of: `Transport t = new Truck();`<br>You use: `Transport t = TransportFactory.createTransport(\"road\");`<br><br>If you later add a `Ship`, you don't need to change the client code; you just update the Factory. It abstracts away the complex setup and conditional logic required to create objects.",
+      "trap": "Don't confuse Factory Method with Abstract Factory. Factory Method creates one type of product. Abstract Factory creates families of related products (e.g., WindowsButton and WindowsCheckbox vs MacButton and MacCheckbox).",
+      "notes": ""
+    },
+    {
+      "q": "Explain the Strategy Pattern.",
+      "freq": true,
+      "d": "m",
+      "a": "The <strong>Strategy Pattern</strong> is a Behavioral design pattern that allows you to define a family of algorithms, encapsulate each one, and make them interchangeable at runtime. It favors Composition over Inheritance.<br><br><strong>Example:</strong> A Navigation App.<br>Instead of having a massive `calculateRoute()` method with if-statements for Walking, Driving, and Biking, you create a `RouteStrategy` interface.<br>You implement `WalkStrategy`, `DriveStrategy`, and `BikeStrategy`.<br>You inject the desired strategy into the `Navigator` object. The algorithm can be swapped dynamically at runtime without altering the `Navigator` class.",
+      "cross": [
+        "How is Strategy different from State Pattern? \u2192 Intent. Strategy allows a client to explicitly swap algorithms. State pattern changes behavior automatically based on internal state transitions (e.g., Vending machine moving from 'NoCoin' to 'HasCoin' state)."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "What is the Observer Pattern?",
+      "freq": true,
+      "d": "e",
+      "a": "The <strong>Observer Pattern</strong> defines a one-to-many dependency between objects. When the state of one object (the <strong>Subject / Publisher</strong>) changes, all its dependents (the <strong>Observers / Subscribers</strong>) are notified and updated automatically.<br><br><strong>Example:</strong> A YouTube channel (Subject) and its Subscribers (Observers). When a new video is uploaded, the channel iterates through its list of subscribers and calls their `update()` method.<br>Heavily used in GUI frameworks (Event Listeners like `onClick`) and Reactive programming (RxJava, Redux).",
+      "notes": ""
+    },
+    {
+      "q": "Pass-by-Value vs Pass-by-Reference. How does Java/Python do it?",
+      "freq": true,
+      "d": "h",
+      "a": "<strong>Pass-by-Value:</strong> A copy of the actual value is passed. Modifying the parameter inside the function does not affect the original variable.<br><strong>Pass-by-Reference:</strong> The actual memory address is passed. Modifying it alters the original variable.<br><br><strong>The Trap (Java & Python):</strong> Java is STRICTLY <strong>Pass-by-Value</strong>. <br>However, when you pass an Object, you are passing a <em>copy of the memory reference</em>.<br>\u2014 If you modify the object's fields (`person.setName(\"Bob\")`), the original object changes because both the original reference and the copied reference point to the same memory heap.<br>\u2014 If you reassign the object entirely (`person = new Person(\"Alice\")`), the original object outside the function remains untouched, because you only overwrote the copied reference, not the original reference.",
+      "trap": "Never say 'Java passes objects by reference.' It passes the *reference by value*. This is the most commonly failed trick question in OOP interviews.",
+      "notes": ""
+    },
+    {
+      "q": "Stack Memory vs Heap Memory.",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>Stack Memory:</strong> Used for static memory allocation and thread execution. It stores primitive variables and <em>reference pointers</em> to objects. It operates in a Last-In-First-Out (LIFO) manner. Memory is automatically freed when the function scope ends. Very fast, but limited in size (causes `StackOverflowError`).<br><br><strong>Heap Memory:</strong> Used for dynamic memory allocation. <em>All Objects and Arrays</em> are stored here, regardless of where they are created. It is globally accessible by all threads. It is slower to allocate and relies on the Garbage Collector to free memory when objects are no longer referenced by the Stack (causes `OutOfMemoryError`).",
+      "notes": ""
+    },
+    {
+      "q": "What is the difference between == and .equals()?",
+      "freq": true,
+      "d": "e",
+      "a": "<strong>== (Reference Equality):</strong> Checks if two variables point to the exact same object in memory.<br><code>String a = new String(\"hello\"); String b = new String(\"hello\");</code><br><code>a == b</code> returns <strong>false</strong> (they are two distinct objects in the heap).<br><br><strong>.equals() (Logical Equality):</strong> A method defined in the `Object` class that can be overridden to check if the <em>contents</em> of two objects are logically equivalent.<br><code>a.equals(b)</code> returns <strong>true</strong> (they contain the same characters).",
+      "cross": [
+        "Why must you override hashCode() if you override equals()? \u2192 If two objects are logically equal via `.equals()`, they MUST return the exact same integer from `hashCode()`. If they don't, Hash-based collections (like HashMap or HashSet) will store them in different buckets, effectively losing the objects."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "Explain the 'static' keyword (Methods, Variables, Blocks, Classes).",
+      "freq": true,
+      "d": "m",
+      "a": "The `static` keyword means the member belongs to the <strong>Class itself</strong>, not to any specific instance/object.<br><br>\u2014 <strong>Static Variables:</strong> Shared across all instances of the class. If Object A changes it, Object B sees the change. Stored in the Method Area/Metaspace.<br>\u2014 <strong>Static Methods:</strong> Can be called without creating an instance (`Math.pow()`). They <em>cannot</em> access non-static variables or methods (because there is no `this` context).<br>\u2014 <strong>Static Blocks:</strong> Code executed exactly once when the class is loaded into memory, used for initializing static variables.<br>\u2014 <strong>Static Nested Classes:</strong> A nested class that does not require an instance of the outer class to be instantiated.",
+      "trap": "Can a static method be overridden? No. Static methods are resolved at compile-time (Method Hiding), not run-time. Therefore, dynamic polymorphism does not apply to them.",
+      "notes": ""
+    },
+    {
+      "q": "Explain the 'final' keyword (Java) / 'const' (C++).",
+      "freq": true,
+      "d": "e",
+      "a": "The `final` keyword restricts modification.<br><br>\u2014 <strong>Final Variable:</strong> Creates a constant. Once initialized, its value/reference cannot be changed. (Note: If it's an object reference, the reference is constant, but the internal state of the object can still be mutated).<br>\u2014 <strong>Final Method:</strong> Prevents child classes from overriding the method. Secures core logic.<br>\u2014 <strong>Final Class:</strong> Prevents the class from being inherited entirely. (e.g., Java's `String` class is final to ensure immutability and security).",
+      "cross": [
+        "What is the difference between final, finally, and finalize? \u2192 `final` is a keyword restricting modification. `finally` is a block in exception handling that always executes. `finalize()` is an obsolete method called by the Garbage Collector before destroying an object."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "What is an Immutable Class? How do you create one?",
+      "freq": true,
+      "d": "h",
+      "a": "An <strong>Immutable Class</strong> is a class whose state cannot be modified after it is created. (e.g., `String`). They are inherently Thread-Safe and excellent for use as HashMap keys.<br><br><strong>Rules to create one in Java:</strong><br>1. Declare the class as `final` so it cannot be subclassed (subclasses could override getters to return mutable data).<br>2. Make all fields `private` and `final`.<br>3. Provide no Setter methods.<br>4. <strong>Defensive Copying:</strong> If the class holds a mutable object (like a `Date` or `List`), do NOT assign the reference directly in the constructor, and do NOT return the reference directly in the getter. Clone/copy the object so the caller cannot mutate internal state.",
+      "trap": "Failing to mention 'Defensive Copying' for mutable internal fields is the most common reason candidates fail this question.",
+      "notes": ""
+    },
+    {
+      "q": "What is Dependency Injection (DI) and Inversion of Control (IoC)?",
+      "freq": true,
+      "d": "h",
+      "a": "<strong>Inversion of Control (IoC):</strong> A design principle where objects do not create their own dependencies. Control is inverted; an external framework or coordinator manages the lifecycle and flow.<br><br><strong>Dependency Injection (DI):</strong> The specific pattern used to implement IoC. Instead of a `Car` instantiating its own `Engine` (`Engine e = new V8Engine()`), the `Engine` is passed (injected) into the `Car` via its constructor.<br><br><strong>Benefits:</strong><br>1. <strong>Loose Coupling:</strong> The `Car` depends on an `Engine` interface, not a concrete class.<br>2. <strong>Testability:</strong> You can easily inject a `MockEngine` to unit test the `Car` without relying on a real database or hardware.<br>Frameworks like Spring (Java) or NestJS (Node) act as 'IoC Containers' that automatically wire these dependencies together.",
+      "notes": ""
+    },
+    {
+      "q": "What is Garbage Collection? Explain Generational GC.",
+      "freq": true,
+      "d": "h",
+      "a": "<strong>Garbage Collection (GC)</strong> is the automatic process of identifying and deleting objects in the Heap that are no longer reachable by the program (no active references).<br><br><strong>Generational GC (used in Java/C#):</strong> Based on the hypothesis that 'most objects die young' (e.g., local variables in a loop). The Heap is divided into:<br>1. <strong>Young Generation (Eden + Survivor spaces):</strong> All new objects are allocated here. When full, a 'Minor GC' runs. It is extremely fast because it only copies the few surviving objects to the next space and wipes the rest.<br>2. <strong>Old Generation (Tenured):</strong> Objects that survive multiple Minor GCs are promoted here. When this fills up, a 'Major GC' (or Full GC) runs. This is much slower and causes a 'Stop-The-World' pause where application threads freeze.",
+      "cross": [
+        "What is a Memory Leak in a Garbage Collected language? \u2192 It occurs when objects are no longer logically needed by the app, but an unintentional reference (e.g., inside a global `static HashMap`) prevents the GC from destroying them."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "What is Exception Handling? Checked vs Unchecked Exceptions.",
+      "freq": true,
+      "d": "m",
+      "a": "Exception handling ensures the normal flow of the program isn't halted abruptly by an error.<br><br><strong>Unchecked Exceptions (Runtime Exceptions):</strong><br>Represent programming errors or logic flaws (e.g., `NullPointerException`, `IndexOutOfBoundsException`). The compiler does NOT force you to catch them. You should fix the code instead of catching these.<br><br><strong>Checked Exceptions (Compile-time Exceptions):</strong><br>Represent expected external errors outside the program's control (e.g., `IOException` when reading a file, `SQLException`). The compiler FORCES you to either wrap them in a `try-catch` block or declare them in the method signature using `throws`, forcing the caller to handle it.",
+      "trap": "C++ and C# do not have Checked Exceptions. It is a concept heavily popularized by Java. Modern architectural consensus often leans away from Checked Exceptions because they clutter interfaces.",
+      "notes": ""
+    },
+    {
+      "q": "What is Constructor Chaining? Explain the 'super' keyword.",
+      "freq": false,
+      "d": "e",
+      "a": "<strong>Constructor Chaining</strong> is the process of calling one constructor from another constructor within the same class (using `this()`) or from a parent class (using `super()`).<br><br><strong>The `super` keyword:</strong><br>Refers to the immediate parent class object.<br>1. `super()` calls the parent's constructor. <em>It must be the very first line of the child's constructor.</em> If you don't write it, the compiler invisibly inserts `super()` to call the parent's default constructor.<br>2. `super.methodName()` allows a child class to call a method in the parent class that the child has overridden.<br>3. `super.variableName` accesses a parent's variable if it was hidden by the child.",
+      "notes": ""
+    },
+    {
+      "q": "What is Upcasting and Downcasting?",
+      "freq": false,
+      "d": "m",
+      "a": "<strong>Upcasting:</strong> Casting a child object to a parent reference type. It is implicit and always safe (because a Dog IS an Animal).<br><code>Animal a = new Dog();</code><br><em>Effect:</em> You can only call methods defined in the `Animal` class. You lose access to Dog-specific methods.<br><br><strong>Downcasting:</strong> Casting a parent reference back to a child type. It requires an explicit cast and is NOT inherently safe. If the underlying object isn't actually a Dog, it throws a `ClassCastException`.<br><code>Dog d = (Dog) a;</code><br><em>Safety:</em> Always use the `instanceof` operator before downcasting to ensure the actual object type matches.",
+      "notes": ""
+    }
+  ]
+}

@@ -1,0 +1,186 @@
+{
+  "id": "sys",
+  "icon": "\ud83c\udfd7\ufe0f",
+  "title": "System Design Basics Master Guide",
+  "bg": "#FAECE7",
+  "questions": [
+    {
+      "q": "What is the difference between Horizontal and Vertical scaling? When does Horizontal fail?",
+      "freq": true,
+      "d": "e",
+      "a": "<strong>Vertical Scaling (Scale-Up):</strong> Adding more power (CPU, RAM, SSD) to a single machine. <br><em>Pros:</em> Extremely simple, no code changes required. <br><em>Cons:</em> Hard hardware limit, requires downtime to upgrade, remains a Single Point of Failure (SPOF).<br><br><strong>Horizontal Scaling (Scale-Out):</strong> Adding more machines to the resource pool and distributing the load via a Load Balancer. <br><em>Pros:</em> Theoretically infinite scalability, high availability, no SPOF.<br><em>Cons:</em> Significant architectural complexity.<br><br><strong>When Horizontal Scaling gets hard:</strong><br>1. <strong>Stateful Services:</strong> If Server A holds a user's session data in RAM, subsequent requests from that user must be routed to Server A (Sticky Sessions), which breaks load distribution. <em>Solution:</em> Move state to an external distributed cache (like Redis).<br>2. <strong>Database Writes:</strong> You can easily scale Database Reads horizontally by adding Read Replicas. However, scaling Writes requires Database Sharding, which introduces massive complexity (distributed transactions, cross-shard joins).",
+      "trap": "Always mention that scaling stateless web servers horizontally is easy, but scaling databases horizontally is the hardest part of system design.",
+      "notes": ""
+    },
+    {
+      "q": "Explain the CAP Theorem.",
+      "freq": true,
+      "d": "m",
+      "a": "The <strong>CAP Theorem</strong> states that in a Distributed System, you can only guarantee exactly TWO of the following three properties simultaneously:<br><br><strong>C - Consistency:</strong> Every read receives the most recent write or an error. (All nodes see the exact same data at the same time).<br><strong>A - Availability:</strong> Every request receives a non-error response, without the guarantee that it contains the most recent write.<br><strong>P - Partition Tolerance:</strong> The system continues to operate despite an arbitrary number of messages being dropped/delayed by the network between nodes.<br><br>Because network partitions (P) are unavoidable in the real world, <strong>you must always choose between CP and AP</strong>:<br>\u2014 <strong>CP System (Consistency over Availability):</strong> e.g., MongoDB, HBase, Bank Balances. If a network partition happens, the system will block reads/writes (become unavailable) to ensure no one reads stale data.<br>\u2014 <strong>AP System (Availability over Consistency):</strong> e.g., Cassandra, DynamoDB, Social Media Feeds. If a partition happens, nodes will continue to serve data, even if it's stale (Eventual Consistency).",
+      "cross": [
+        "What is PACELC? \u2192 An extension of CAP. It states: In case of a Partition (P), choose A or C. ELSE (E), when the system is running normally, choose Latency (L) or Consistency (C)."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "What is Eventual Consistency? How do you handle it in application code?",
+      "freq": true,
+      "d": "h",
+      "a": "<strong>Eventual Consistency</strong> is a guarantee that if no new updates are made to a given data item, eventually all accesses to that item will return the last updated value. (Common in AP systems and asynchronous Read Replicas).<br><em>Problem:</em> A user updates their profile picture on the primary DB, reloads the page (which hits a read replica), and sees their old picture.<br><br><strong>How to handle it in code:</strong><br>1. <strong>Read-Your-Own-Writes:</strong> If a user modifies their own data, the system routes their subsequent reads to the Primary DB for the next N seconds, while routing other users' reads to the Replicas.<br>2. <strong>Versioning / Timestamps:</strong> Attach a timestamp to records. If a client receives a record with an older timestamp than it already has locally, it discards it.<br>3. <strong>Optimistic UI Updates:</strong> The frontend assumes the write will succeed and updates the UI instantly, masking the replication delay from the user.",
+      "notes": ""
+    },
+    {
+      "q": "Design a Rate Limiter. What algorithms exist?",
+      "freq": true,
+      "d": "h",
+      "a": "A <strong>Rate Limiter</strong> controls the amount of traffic sent by a client to a service, protecting it from DDoS attacks and resource exhaustion.<br><br><strong>Algorithms:</strong><br>1. <strong>Token Bucket:</strong> A bucket holds N tokens. Tokens are refilled at a constant rate. Every request costs 1 token. If the bucket is empty, the request is dropped. <em>Pros:</em> Allows for short bursts of traffic. Used by AWS and Stripe.<br>2. <strong>Leaky Bucket:</strong> Requests are put into a queue (bucket) and processed at a strict, constant rate. <em>Pros:</em> Smooths out traffic spikes completely.<br>3. <strong>Fixed Window Counter:</strong> Counts requests in fixed time windows (e.g., 00:00 to 00:01). <em>Problem:</em> Traffic spikes at the edges of windows can double the allowed limit.<br>4. <strong>Sliding Window Log:</strong> Logs the exact timestamp of every request. Highly accurate but consumes massive memory.<br>5. <strong>Sliding Window Counter:</strong> A hybrid that uses the previous window's count to estimate the current window's utilization. High accuracy, low memory.<br><br><strong>Implementation:</strong> Usually implemented using Redis using atomic `INCR` commands and TTLs.",
+      "notes": ""
+    },
+    {
+      "q": "What is a Message Queue? Kafka vs RabbitMQ.",
+      "freq": true,
+      "d": "h",
+      "a": "A <strong>Message Queue</strong> decouples services, allowing them to communicate asynchronously. It absorbs traffic spikes (buffering) and allows for retries if the consumer fails.<br><br><strong>RabbitMQ (Message Broker / Smart Broker, Dumb Consumer):</strong><br>\u2014 <em>Push-based:</em> RabbitMQ pushes messages to consumers.<br>\u2014 <em>Transient:</em> Once a consumer successfully processes and ACKs a message, it is permanently deleted from the queue.<br>\u2014 <em>Routing:</em> Excellent for complex routing rules (Direct, Fanout, Topic exchanges).<br>\u2014 <em>Use case:</em> Task queues, sending emails, background PDF generation.<br><br><strong>Apache Kafka (Distributed Event Log / Dumb Broker, Smart Consumer):</strong><br>\u2014 <em>Pull-based:</em> Consumers poll Kafka for new messages at their own pace.<br>\u2014 <em>Persistent:</em> Messages are appended to an immutable log and kept for a configured retention period (e.g., 7 days). They are NOT deleted when read.<br>\u2014 <em>Replayability:</em> Because messages persist, a new consumer can start from offset 0 and 'replay' the entire history of events.<br>\u2014 <em>Use case:</em> Big data pipelines, Event Sourcing, real-time stream processing, clickstream analytics.",
+      "notes": ""
+    },
+    {
+      "q": "Explain exactly-once delivery. Is it possible?",
+      "freq": false,
+      "d": "h",
+      "a": "In distributed messaging systems, there are three delivery semantics:<br>1. <strong>At-most-once (Fire and Forget):</strong> Message is sent once. If it drops, it's lost. (Low latency, data loss acceptable \u2014 e.g., IoT sensor telemetry).<br>2. <strong>At-least-once:</strong> Message is sent, and the sender waits for an ACK. If no ACK arrives (timeout), it sends it again. Guarantees delivery, but creates duplicates.<br>3. <strong>Exactly-once:</strong> The holy grail. The message is delivered and processed exactly one time.<br><br><em>Is it possible?</em> At the network layer, mathematically no (Two Generals' Problem). You can never perfectly distinguish between a dropped message and a dropped ACK.<br>However, we achieve it at the <strong>Application Layer using Idempotency</strong>. We use At-least-once delivery, but the Consumer checks a unique `MessageID` in a database. If it has seen the ID before, it safely ignores the duplicate.",
+      "notes": ""
+    },
+    {
+      "q": "What is the Circuit Breaker pattern?",
+      "freq": true,
+      "d": "m",
+      "a": "The <strong>Circuit Breaker</strong> prevents a localized failure from cascading through an entire microservice architecture.<br><br><em>Scenario:</em> Service A calls Service B. Service B goes down. A waits 30 seconds for a timeout. If A receives 100 requests, all its threads are now blocked waiting for B. Service A becomes unresponsive, crashing Services C and D that depend on A.<br><br><strong>How it works:</strong><br>1. <strong>Closed (Normal):</strong> Requests flow normally. Failures are counted.<br>2. <strong>Open (Tripped):</strong> If the failure rate exceeds a threshold (e.g., 50% in 10s), the circuit 'opens'. All subsequent requests from A to B instantly fail (Fast Failure) or return a fallback cached value. B is given time to recover without being hammered by traffic.<br>3. <strong>Half-Open:</strong> After a timeout, the circuit allows a single test request through. If it succeeds, the circuit Closes. If it fails, it Opens again.",
+      "notes": ""
+    },
+    {
+      "q": "What are the common Caching Strategies (Cache-Aside, Write-Through)?",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>1. Cache-Aside (Lazy Loading):</strong><br>The most common strategy. The application checks the cache first. If Cache Hit, return data. If Cache Miss, query the DB, write the data to the cache, and return it. <br><em>Pros:</em> Cache only holds requested data. <em>Cons:</em> Cache Misses suffer a latency penalty (3 trips). Data can become stale.<br><br><strong>2. Write-Through:</strong><br>Data is written into the cache AND the database simultaneously. <br><em>Pros:</em> Data in the cache is never stale. <em>Cons:</em> Higher write latency (two write operations required). Cache is filled with data that might never be read.<br><br><strong>3. Write-Behind (Write-Back):</strong><br>Data is written ONLY to the cache, and the cache acknowledges the write immediately. An asynchronous background process later syncs the cache to the Database.<br><em>Pros:</em> Extreme write performance. <em>Cons:</em> High risk of permanent data loss if the cache server crashes before the DB sync happens.",
+      "cross": [
+        "What is the Thundering Herd (Cache Stampede) problem? \u2192 When a highly popular cache key expires, thousands of concurrent requests all get a Cache Miss and hit the DB simultaneously, crashing it. Fix: Use a mutex lock so only 1 thread fetches from DB while others wait."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "What is Consistent Hashing and why is it used?",
+      "freq": true,
+      "d": "h",
+      "a": "<strong>Problem:</strong> In a distributed cache (e.g., 5 Redis servers), you route keys using `hash(key) % N`. If you add or remove a server, N changes. The modulo result for almost EVERY key changes, causing a massive cache miss storm and crushing the database.<br><br><strong>Consistent Hashing (Solution):</strong><br>Instead of a linear modulo, imagine a Hash Ring (0 to 360 degrees).<br>1. Hash the IP addresses of your 5 servers and place them on the ring.<br>2. Hash your data keys and place them on the same ring.<br>3. To find which server holds a key, move clockwise on the ring until you hit a server.<br><br>If Server 3 crashes, only the keys belonging to Server 3 move (to Server 4). The keys on Servers 1, 2, 4, and 5 stay exactly where they are. <strong>Only k/N keys are remapped</strong> (where k is total keys, N is servers), preventing a system collapse.",
+      "cross": [
+        "What are Virtual Nodes? \u2192 In consistent hashing, a powerful server might be assigned 10 'virtual' spots on the ring, while a weak server gets 2. This ensures perfectly even load distribution."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "Database Sharding vs Partitioning.",
+      "freq": true,
+      "d": "m",
+      "a": "Both techniques split a large dataset into smaller, more manageable pieces.<br><br><strong>Partitioning (Single Server):</strong><br>Dividing a table locally within the same database instance. <br>\u2014 <em>Vertical Partitioning:</em> Splitting columns (e.g., putting massive TEXT/BLOB columns in a separate table).<br>\u2014 <em>Horizontal Partitioning:</em> Splitting rows (e.g., putting 2023 sales in one table, 2024 in another). Speeds up local query performance via Partition Pruning.<br><br><strong>Sharding (Multiple Servers):</strong><br>A specific type of Horizontal Partitioning where the data is distributed across <strong>multiple independent physical database servers (Shards)</strong>.<br>Required when the dataset is too large to fit on one machine's disk, or the write volume exceeds one machine's IOPS.<br><em>Challenges:</em> Choosing a good Shard Key to prevent 'Hotspots' (one server getting all the traffic). Cross-shard Joins become impossible; they must be done in application memory.",
+      "notes": ""
+    },
+    {
+      "q": "What is a Bloom Filter?",
+      "freq": true,
+      "d": "h",
+      "a": "A <strong>Bloom Filter</strong> is a highly space-efficient probabilistic data structure used to test whether an element is a member of a set.<br><br><strong>How it works:</strong> It uses a bit array and multiple hash functions. When inserting an item, you run it through 3 hash functions and flip those 3 bits to 1. When querying, you run the item through the same 3 hashes and check the bits.<br><br><strong>The Guarantee:</strong><br>\u2014 If it says <strong>NO</strong>: The item is 100% definitely NOT in the set.<br>\u2014 If it says <strong>YES</strong>: The item <em>MIGHT</em> be in the set (False Positives are possible due to hash collisions, but False Negatives are impossible).<br><br><strong>Use Cases:</strong><br>\u2014 <em>Databases (Cassandra/Postgres):</em> Before doing an expensive disk read for a row, check the Bloom Filter. If it says NO, skip the disk read completely. Massive performance boost.<br>\u2014 <em>Malicious URL Checkers:</em> Browsers check a local 1MB bloom filter of billions of bad URLs. If YES, it queries a remote server to confirm.",
+      "notes": ""
+    },
+    {
+      "q": "Event Sourcing vs CRUD.",
+      "freq": false,
+      "d": "h",
+      "a": "<strong>CRUD (Create, Read, Update, Delete):</strong><br>Stores the <em>current state</em> of an entity. If you update an account balance from $100 to $150, the $100 is erased forever. You lose the history of how the state was reached.<br><br><strong>Event Sourcing:</strong><br>Instead of storing the current state, you store an immutable, append-only log of every <strong>Event</strong> that has ever occurred. <br><em>Events:</em> `AccountCreated(0)`, `Deposited(100)`, `Deposited(50)`.<br>To get the current balance, the system 'replays' the events from the beginning to calculate $150.<br><br><strong>Pros:</strong> Perfect audit trail (impossible to lose data history), Time Travel (can view system state at any exact past millisecond), natural fit for Kafka/Microservices.<br><strong>Cons:</strong> Replaying thousands of events to get a balance is too slow. <em>Solution:</em> Periodically save <strong>Snapshots</strong> (e.g., save the balance every 100 events, then only replay events since the last snapshot).",
+      "notes": ""
+    },
+    {
+      "q": "What is CQRS (Command Query Responsibility Segregation)?",
+      "freq": true,
+      "d": "h",
+      "a": "<strong>CQRS</strong> is an architectural pattern that separates the data models used for <strong>Writing (Commands)</strong> and <strong>Reading (Queries)</strong>.<br><br>In traditional systems, the exact same relational database model is used to insert data and query data. As systems scale, complex Read queries (requiring 5 joins) lock tables and slow down high-volume Writes.<br><br><strong>CQRS Solution:</strong><br>1. <strong>Write DB:</strong> Optimized for rapid, normalized inserts (e.g., an Event Store or relational DB).<br>2. <strong>Read DB:</strong> Optimized for blazing-fast reads. Heavily denormalized (e.g., ElasticSearch for text search, or Redis/MongoDB for pre-computed views).<br><br>When a Write occurs, an Event is published via a Message Queue (Kafka). The Read DB consumes this event and updates its materialized views. <br><em>Trade-off:</em> Introduces Eventual Consistency. The Read DB will lag slightly behind the Write DB.",
+      "notes": ""
+    },
+    {
+      "q": "Forward Proxy vs Reverse Proxy.",
+      "freq": true,
+      "d": "e",
+      "a": "<strong>Forward Proxy (Protects Clients):</strong><br>Sits in front of client machines. When an employee tries to access `facebook.com`, the request goes to the corporate Forward Proxy. The proxy makes the request on their behalf. <br><em>Uses:</em> Bypassing geo-blocks (VPNs), anonymity (hiding client IP from the internet), or corporate content filtering.<br><br><strong>Reverse Proxy (Protects Servers):</strong><br>Sits in front of web servers. When a user requests `netflix.com`, they actually hit Netflix's Reverse Proxy. The proxy forwards the request to the hidden internal servers.<br><em>Uses:</em> Load Balancing, SSL/TLS Termination (decrypting HTTPS to save backend CPU), Caching static assets, Compression (GZIP), and protection against DDoS attacks. (e.g., Nginx, HAProxy).",
+      "notes": ""
+    },
+    {
+      "q": "What is Long Polling vs WebSockets vs Server-Sent Events (SSE)?",
+      "freq": true,
+      "d": "m",
+      "a": "Standard HTTP requires the client to initiate all requests. How do we push real-time data from the server?<br><br><strong>1. Long Polling:</strong> Client makes a request. The server intentionally holds the connection open until new data is available. Once sent, the client immediately re-opens the connection. <em>Cons:</em> High HTTP header overhead, latency.<br><br><strong>2. Server-Sent Events (SSE):</strong> Client makes an HTTP request. The server holds it open and continuously streams data down to the client. <em>Pros:</em> Native browser support, works over standard HTTP. <em>Cons:</em> Unidirectional (Server to Client only). Ideal for Live News/Stock Tickers.<br><br><strong>3. WebSockets:</strong> The client upgrades an HTTP connection into a persistent, bidirectional TCP tunnel. Both client and server can push lightweight messages instantly at any time. <em>Pros:</em> Lowest latency, full duplex. <em>Cons:</em> Stateful, harder to scale via Load Balancers. Ideal for Multiplayer Games and Chat Apps.",
+      "notes": ""
+    },
+    {
+      "q": "How does a CDN (Content Delivery Network) work?",
+      "freq": true,
+      "d": "e",
+      "a": "A <strong>CDN</strong> is a geographically distributed network of proxy servers (Edge Nodes).<br><br>If your main server (Origin) is in New York, a user in Tokyo will experience 200ms of latency loading your images. A CDN solves this by caching static assets (HTML, CSS, JS, Images, Video) on an Edge Node physically located in Tokyo.<br><br><strong>How routing works (Anycast):</strong> CDNs use BGP Anycast routing or Geo-DNS. Multiple CDN servers globally share the exact same IP address. The internet's routing infrastructure automatically routes the user to the topologically closest server.<br><br><strong>Benefits:</strong> Drastically reduced latency, massively reduced bandwidth costs on the Origin server, and inherent DDoS protection (the CDN absorbs the attack globally).",
+      "notes": ""
+    },
+    {
+      "q": "What is the Saga Pattern in Microservices?",
+      "freq": true,
+      "d": "h",
+      "a": "In a monolithic database, you use ACID transactions (BEGIN, COMMIT, ROLLBACK) to ensure multiple operations succeed or fail together. In microservices, data is split across multiple independent databases, making ACID impossible.<br><br>The <strong>Saga Pattern</strong> is used to manage distributed transactions. A Saga is a sequence of local transactions. Each local transaction updates its DB and publishes an event to trigger the next step.<br><br>If a step fails (e.g., Payment succeeds, but Inventory is out of stock), the system cannot 'ROLLBACK' the database natively. Instead, the Saga executes <strong>Compensating Transactions</strong> \u2014 a series of new, automated steps that reverse the previous operations (e.g., issuing an automated refund to the payment service).<br><br><strong>Choreography Saga:</strong> Services publish events and listen to each other (Decentralized).<br><strong>Orchestration Saga:</strong> A central 'Saga Orchestrator' service tells each service what to do and handles the rollback logic (Centralized).",
+      "notes": ""
+    },
+    {
+      "q": "What is Distributed Tracing? (OpenTelemetry, Jaeger)",
+      "freq": false,
+      "d": "m",
+      "a": "In a microservice architecture, a single user click might trigger requests across 15 different services. If the request takes 5 seconds, how do you know which service was the bottleneck?<br><br><strong>Distributed Tracing</strong> solves this.<br>When a request hits the API Gateway, a unique <strong>Trace ID</strong> is generated. This Trace ID is passed along in the HTTP headers to every downstream service.<br>Each individual service generates a <strong>Span</strong> (representing its specific unit of work) containing start/end times and attaches the Trace ID to it. <br><br>These spans are sent asynchronously to a tracing backend (like Jaeger or Zipkin), which pieces them together into a visual Gantt chart, allowing engineers to instantly spot the slow database query or network call causing the delay.",
+      "notes": ""
+    },
+    {
+      "q": "What is a Database Connection Pool?",
+      "freq": false,
+      "d": "m",
+      "a": "Establishing a new TCP connection, performing the TLS handshake, and authenticating with a Database is a very slow, CPU-intensive process (can take 50ms+). If a web server handling 10,000 requests/sec opens and closes a DB connection for every request, the database will instantly crash from connection overhead.<br><br>A <strong>Connection Pool</strong> is a cache of database connections kept alive in the application's memory.<br>When a request needs DB access, it 'borrows' an active connection from the pool, runs the query, and 'returns' it. <br>This removes connection overhead entirely and allows you to enforce a strict limit on the maximum concurrent connections the database is subjected to. (e.g., HikariCP in Java, PgBouncer for Postgres).",
+      "notes": ""
+    },
+    {
+      "q": "SQL vs NoSQL. How do you choose?",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>SQL (Relational):</strong> MySQL, PostgreSQL.<br>\u2014 <em>Structure:</em> Strict schema, highly structured tables.<br>\u2014 <em>Properties:</em> ACID compliant. Optimized for Data Integrity.<br>\u2014 <em>Scaling:</em> Scales vertically well, notoriously difficult to scale horizontally (Sharding).<br>\u2014 <em>Use Case:</em> Financial transactions, ERPs, systems where relationships between data are complex and strict consistency is required.<br><br><strong>NoSQL (Non-Relational):</strong> MongoDB, Cassandra, DynamoDB.<br>\u2014 <em>Structure:</em> Flexible schema (JSON documents, Key-Value, Columnar).<br>\u2014 <em>Properties:</em> Often BASE (Eventual Consistency) instead of ACID.<br>\u2014 <em>Scaling:</em> Designed from the ground up to scale horizontally infinitely across cheap servers.<br>\u2014 <em>Use Case:</em> Rapid prototyping, massive unstructured data, IoT sensor data, real-time analytics, caching.",
+      "notes": ""
+    },
+    {
+      "q": "Explain API Pagination strategies (Offset vs Keyset/Cursor).",
+      "freq": true,
+      "d": "h",
+      "a": "When returning thousands of records, you must paginate the API.<br><br><strong>1. Offset-based Pagination:</strong> `SELECT * FROM users OFFSET 100000 LIMIT 20`<br><em>Pros:</em> Easy to implement, allows jumping to page 500 directly.<br><em>Cons:</em> As the offset grows, it becomes incredibly slow. The database must fetch and discard the first 100,000 rows before returning the 20 you want. Also suffers from 'Skipped/Duplicated items' if new records are inserted while paginating.<br><br><strong>2. Cursor-based (Keyset) Pagination:</strong> `SELECT * FROM users WHERE id > 100000 LIMIT 20`<br><em>Pros:</em> Extremely fast, regardless of depth, because it utilizes the B-Tree Index to instantly jump to the `id`. Immune to missing/duplicate items when data is inserted.<br><em>Cons:</em> Cannot jump directly to page 500 (must traverse sequentially). Requires a unique, sequential column (like ID or Timestamp) to act as the cursor.",
+      "notes": ""
+    },
+    {
+      "q": "What is Heartbeat and Gossip Protocol?",
+      "freq": false,
+      "d": "h",
+      "a": "In a cluster of hundreds of nodes, how do servers know if one of them has crashed?<br><br><strong>Heartbeat:</strong> A node periodically sends a ping (heartbeat) to a central master node. If the master doesn't receive a heartbeat for 5 seconds, it marks the node as dead. <em>Problem:</em> The master is a SPOF and a bottleneck.<br><br><strong>Gossip Protocol (Epidemic Protocol):</strong> A decentralized, peer-to-peer approach used by massive systems like Cassandra and Amazon Dynamo.<br>Instead of a central master, every second, Node A randomly picks Node B and shares its state (who it thinks is alive/dead). Node B updates its list and randomly gossips with Node C. Like a virus, information about a dead node spreads exponentially across a 1000-node cluster in milliseconds. Highly fault-tolerant and infinitely scalable.",
+      "notes": ""
+    },
+    {
+      "q": "What is Two-Phase Commit (2PC)?",
+      "freq": false,
+      "d": "h",
+      "a": "<strong>2PC</strong> is a protocol used to achieve atomic transactions across multiple distributed databases. It uses a central <strong>Coordinator</strong>.<br><br><strong>Phase 1 (Prepare):</strong> Coordinator asks all participating databases, 'Are you ready to commit?'. The databases lock their resources, write to their transaction logs, and reply 'Yes' or 'No'.<br><strong>Phase 2 (Commit/Rollback):</strong> <br>\u2014 If ALL nodes replied Yes, the Coordinator sends 'Commit'. All nodes finalize the transaction and release locks.<br>\u2014 If ANY node replied No, the Coordinator sends 'Rollback'. All nodes abort.<br><br><em>Why is it bad?</em> It is a blocking, synchronous protocol. If a database locks its rows in Phase 1 and the Coordinator crashes before Phase 2, the database is stuck with locked rows forever. This is why modern systems prefer asynchronous <strong>Saga Patterns</strong> over 2PC.",
+      "notes": ""
+    },
+    {
+      "q": "What is Leader Election and Split Brain?",
+      "freq": false,
+      "d": "h",
+      "a": "In a distributed cluster (e.g., Kafka, Elasticsearch), one node is usually designated as the <strong>Leader (Primary)</strong> to coordinate writes, while others are Followers.<br><br>If the Leader crashes, the cluster must hold a <strong>Leader Election</strong> using consensus algorithms like Raft or Paxos to vote for a new leader.<br><br><strong>Split Brain Problem:</strong> A network cable breaks, cutting the cluster in half. Nodes in Group A can't see the Leader in Group B, so Group A elects its own Leader. You now have TWO active leaders writing conflicting data to the system.<br><strong>Solution:</strong> The concept of <strong>Quorum</strong>. A cluster is configured with an odd number of nodes (e.g., 5). To elect a leader or write data, a strict majority (N/2 + 1 = 3 nodes) must agree. In a network split, the isolated minority group (2 nodes) realizes it lacks quorum and shuts itself down, preventing Split Brain.",
+      "notes": ""
+    }
+  ]
+}

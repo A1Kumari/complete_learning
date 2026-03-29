@@ -1,0 +1,422 @@
+{
+  "id": "db",
+  "icon": "\ud83d\uddc4\ufe0f",
+  "title": "DBMS & SQL Master Guide",
+  "bg": "#FAEEDA",
+  "questions": [
+    {
+      "q": "What is a DBMS? What are its advantages over a traditional file-based system?",
+      "freq": true,
+      "d": "e",
+      "a": "A <strong>Database Management System (DBMS)</strong> is software that stores, retrieves, and manages data. <br><br><strong>Problems with file systems:</strong><br>\u2014 Data redundancy & inconsistency.<br>\u2014 No concurrent access control (two users saving a file corrupts it).<br>\u2014 No crash recovery.<br>\u2014 No declarative query language.<br><br><strong>DBMS solves this via:</strong><br>\u2014 Normalization & Constraints (integrity).<br>\u2014 Locking & MVCC (concurrency).<br>\u2014 WAL/Write-Ahead Logging (crash recovery).<br>\u2014 SQL (declarative querying).",
+      "cross": [
+        "What is the difference between DBMS and RDBMS? \u2192 RDBMS enforces the relational model (tables, rows), referential integrity (Foreign Keys), and strict ACID properties."
+      ],
+      "trap": "Don't just say 'it stores data safely.' Mention specific mechanisms like WAL, MVCC, and Constraints to show deep understanding.",
+      "notes": ""
+    },
+    {
+      "q": "Explain the three-level architecture of DBMS and Data Independence.",
+      "freq": false,
+      "d": "m",
+      "a": "The <strong>ANSI-SPARC Architecture</strong> separates the database into three levels to abstract complexities:<br><strong>1. Physical/Internal Level:</strong> How data is actually stored on disk (B+ trees, hashing, byte layouts).<br><strong>2. Logical/Conceptual Level:</strong> What data is stored and their relationships (tables, columns, keys).<br><strong>3. View/External Level:</strong> What specific user groups see (custom views, hidden sensitive data).<br><br><strong>Data Independence:</strong> The ability to change a lower level without affecting higher levels.<br>\u2014 <strong>Logical Data Independence:</strong> Changing the logical schema (adding a column) without breaking user views/apps.<br>\u2014 <strong>Physical Data Independence:</strong> Changing physical storage (adding an index, moving to a new disk) without changing the logical schema.",
+      "notes": ""
+    },
+    {
+      "q": "What are ACID properties? Explain each with examples.",
+      "freq": true,
+      "d": "h",
+      "a": "<strong>ACID</strong> ensures reliable transaction processing.<br><br><strong>A \u2014 Atomicity:</strong> All or nothing. If a bank transfer's debit succeeds but credit fails due to a crash, the DB rolls back the debit using Undo Logs.<br><strong>C \u2014 Consistency:</strong> Transactions must leave the DB in a valid state. If a constraint says `balance >= 0`, a transaction making it negative is entirely rejected.<br><strong>I \u2014 Isolation:</strong> Concurrent transactions don't interfere. T1 shouldn't see T2's intermediate state. Handled via Locks/MVCC.<br><strong>D \u2014 Durability:</strong> Once committed, changes survive hardware crashes. Handled via Write-Ahead Logging (WAL).",
+      "cross": [
+        "What is WAL? \u2192 Changes are written to a sequential log on disk BEFORE actual data files are updated. On crash, the log is replayed."
+      ],
+      "trap": "ACID Consistency (integrity rules) is NOT the same as CAP Theorem Consistency (distributed nodes seeing the same data).",
+      "notes": ""
+    },
+    {
+      "q": "Explain different types of keys in a relational database.",
+      "freq": true,
+      "d": "e",
+      "a": "Keys uniquely identify rows and establish relationships.<br>\u2014 <strong>Super Key:</strong> Any combination of columns that uniquely identifies a row.<br>\u2014 <strong>Candidate Key:</strong> A minimal Super Key (remove any column and it loses uniqueness).<br>\u2014 <strong>Primary Key (PK):</strong> The one Candidate Key chosen to identify rows. Cannot be NULL.<br>\u2014 <strong>Alternate Key:</strong> Candidate keys not selected as the PK (often enforced via UNIQUE constraints).<br>\u2014 <strong>Foreign Key (FK):</strong> A column that references the PK of another table, enforcing referential integrity.<br>\u2014 <strong>Composite Key:</strong> A PK consisting of multiple columns (common in junction tables).<br>\u2014 <strong>Surrogate Key:</strong> An artificial, system-generated key (e.g., Auto-Increment ID) with no business meaning.",
+      "cross": [
+        "Can a table have multiple Primary Keys? \u2192 No, only one. But a Primary Key can be Composite (made of multiple columns)."
+      ],
+      "trap": "Super Key \u2287 Candidate Key \u2287 Primary Key. All PKs are Candidate Keys, but not all Candidate Keys are PKs.",
+      "notes": ""
+    },
+    {
+      "q": "What is an Entity-Relationship (ER) model? Explain Strong vs Weak entities.",
+      "freq": false,
+      "d": "m",
+      "a": "The <strong>ER model</strong> is a conceptual blueprint of the database. It consists of <strong>Entities</strong> (objects like 'Student'), <strong>Attributes</strong> (properties like 'Age'), and <strong>Relationships</strong> (associations like 'Enrolled').<br><br><strong>Strong Entity:</strong> Exists independently. Has its own Primary Key. (e.g., `Employee`).<br><strong>Weak Entity:</strong> Cannot exist without an identifying Strong Entity (Owner). It only has a 'Partial Key' (Discriminator). (e.g., `Dependent` of an Employee). In an ER diagram, it's represented by a double rectangle, and its relationship to the owner is a double diamond.",
+      "notes": ""
+    },
+    {
+      "q": "Explain the different types of table relationships (1:1, 1:N, M:N).",
+      "freq": true,
+      "d": "e",
+      "a": "<strong>1. One-to-One (1:1):</strong> One row in A relates to one row in B. (e.g., User & UserProfile). Implementation: Put the FK in either table with a UNIQUE constraint.<br><strong>2. One-to-Many (1:N):</strong> One row in A relates to many in B. (e.g., Department & Employees). Implementation: Put the FK on the 'Many' side (Employee table gets `dept_id`).<br><strong>3. Many-to-Many (M:N):</strong> Many rows in A relate to many in B. (e.g., Students & Courses). Implementation: Requires a <strong>Junction/Bridge Table</strong> containing FKs to both tables, forming a composite PK.",
+      "cross": [
+        "What is a Self-Referencing relationship? \u2192 A table has an FK pointing to its own PK (e.g., an Employee table with a `manager_id` pointing to `employee_id`)."
+      ],
+      "trap": "You cannot implement a Many-to-Many relationship directly in SQL without a 3rd junction table. Storing comma-separated IDs violates 1NF.",
+      "notes": ""
+    },
+    {
+      "q": "What are DDL, DML, DCL, and TCL?",
+      "freq": true,
+      "d": "e",
+      "a": "<strong>DDL (Data Definition Language):</strong> Alters database schema/structure. (CREATE, ALTER, DROP, TRUNCATE). Usually auto-committed.<br><strong>DML (Data Manipulation Language):</strong> Modifies actual data. (INSERT, UPDATE, DELETE). Can be rolled back.<br><strong>DQL (Data Query Language):</strong> Retrieves data. (SELECT).<br><strong>DCL (Data Control Language):</strong> Manages permissions. (GRANT, REVOKE).<br><strong>TCL (Transaction Control Language):</strong> Manages transactions. (COMMIT, ROLLBACK, SAVEPOINT).",
+      "cross": [
+        "Is TRUNCATE DDL or DML? \u2192 It is DDL. It drops and re-creates the table or deallocates data pages, rather than deleting rows one by one."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "What is Normalization? Explain Functional Dependency and Anomalies.",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>Normalization</strong> is organizing data to minimize redundancy and eliminate anomalies.<br><br><strong>Functional Dependency (FD):</strong> If column A uniquely determines column B, then B is functionally dependent on A (A \u2192 B).<br><br><strong>Anomalies prevented by Normalization:</strong><br>\u2014 <strong>Insertion Anomaly:</strong> Cannot insert data because other unrelated data is missing (e.g., can't add a new Course until a Student enrolls in it).<br>\u2014 <strong>Deletion Anomaly:</strong> Deleting a row causes unintended loss of other data (e.g., deleting the last student in a course deletes the course details).<br>\u2014 <strong>Update Anomaly:</strong> Redundant data requires multiple updates. Missing one causes inconsistency.",
+      "notes": ""
+    },
+    {
+      "q": "Explain 1NF, 2NF, 3NF, and BCNF.",
+      "freq": true,
+      "d": "h",
+      "a": "<strong>1NF (Atomic):</strong> All attributes must be atomic (no arrays/comma-separated values).<br><strong>2NF (No Partial Dependency):</strong> Must be in 1NF. No non-prime attribute can depend on only a *part* of a composite Primary Key. (e.g., if PK is `StudentID, CourseID`, `CourseName` depending only on `CourseID` violates 2NF).<br><strong>3NF (No Transitive Dependency):</strong> Must be in 2NF. Non-prime attributes cannot depend on other non-prime attributes (A \u2192 B, B \u2192 C).<br><strong>BCNF (Boyce-Codd NF):</strong> A stricter 3NF. For EVERY functional dependency X \u2192 Y, X MUST be a Super Key.",
+      "cross": [
+        "When would you intentionally Denormalize? \u2192 For read-heavy applications (OLAP/Data Warehouses) where complex joins slow down queries. Redundancy is accepted for speed."
+      ],
+      "trap": "Candidates usually fail the BCNF definition. Just memorize: 'For any dependency X\u2192Y, X must be a candidate/super key.'",
+      "notes": ""
+    },
+    {
+      "q": "What is the difference between DELETE, TRUNCATE, and DROP?",
+      "freq": true,
+      "d": "e",
+      "a": "<strong>DELETE:</strong> DML command. Removes specific rows (WHERE clause). Logged row-by-row in the transaction log. Slower. Triggers fire. Can be rolled back.<br><strong>TRUNCATE:</strong> DDL command. Removes all rows by deallocating data pages. No WHERE clause. Minimal logging. Faster. Does not fire triggers. Resets auto-increment/identity columns.<br><strong>DROP:</strong> DDL command. Completely destroys the table structure, data, constraints, and indexes from the database.",
+      "trap": "In MySQL, TRUNCATE auto-commits and cannot be rolled back. In PostgreSQL/SQL Server, TRUNCATE CAN be rolled back if wrapped in a transaction.",
+      "notes": ""
+    },
+    {
+      "q": "Explain the logical execution order of a SQL query.",
+      "freq": true,
+      "d": "m",
+      "a": "SQL is written in one order but executed by the engine in another:<br><strong>1. FROM & JOINs:</strong> Determines the base working data set.<br><strong>2. WHERE:</strong> Filters the base data.<br><strong>3. GROUP BY:</strong> Aggregates data into groupings.<br><strong>4. HAVING:</strong> Filters the grouped/aggregated data.<br><strong>5. SELECT:</strong> Returns the specific columns (and processes Window Functions).<br><strong>6. DISTINCT:</strong> Removes duplicates.<br><strong>7. ORDER BY:</strong> Sorts the final result.<br><strong>8. LIMIT / OFFSET:</strong> Restricts the number of rows returned.",
+      "cross": [
+        "Why can't you use a column alias defined in SELECT inside the WHERE clause? \u2192 Because WHERE is evaluated before SELECT. The engine doesn't know the alias yet."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "What is the difference between WHERE and HAVING?",
+      "freq": true,
+      "d": "e",
+      "a": "<strong>WHERE:</strong> Filters individual rows BEFORE grouping and aggregation occur. Cannot contain aggregate functions like SUM() or COUNT().<br><strong>HAVING:</strong> Filters grouped data AFTER the GROUP BY clause has executed. It is specifically designed to be used with aggregate functions.<br><br><em>Example:</em> `SELECT dept, AVG(salary) FROM emp WHERE age > 25 GROUP BY dept HAVING AVG(salary) > 50000;`",
+      "notes": ""
+    },
+    {
+      "q": "Explain the different types of Joins in SQL.",
+      "freq": true,
+      "d": "e",
+      "a": "<strong>INNER JOIN:</strong> Returns rows that have matching values in BOTH tables.<br><strong>LEFT (OUTER) JOIN:</strong> Returns all rows from the Left table, and matched rows from the Right. Unmatched Right rows contain NULLs.<br><strong>RIGHT (OUTER) JOIN:</strong> Returns all rows from the Right table, and matched rows from the Left.<br><strong>FULL (OUTER) JOIN:</strong> Returns all rows if there is a match in either table. (Note: MySQL doesn't support FULL JOIN natively; you use LEFT JOIN UNION RIGHT JOIN).<br><strong>CROSS JOIN:</strong> Returns the Cartesian product (every row in A matched with every row in B).<br><strong>SELF JOIN:</strong> Joining a table to itself (e.g., finding an employee's manager in the same table).",
+      "trap": "Using a WHERE clause to filter on the right table of a LEFT JOIN (e.g., `WHERE right.col = 'X'`) effectively turns it into an INNER JOIN. Use the ON clause for left-join filtering.",
+      "notes": ""
+    },
+    {
+      "q": "What is an Anti-Join and a Semi-Join?",
+      "freq": false,
+      "d": "m",
+      "a": "These are logical concepts, not exact SQL keywords.<br><strong>Semi-Join:</strong> Returns rows from Table A where a match exists in Table B, but does not duplicate Table A rows if there are multiple matches in B. Usually implemented via `EXISTS` or `IN`.<br><strong>Anti-Join:</strong> Returns rows from Table A where NO match exists in Table B. Usually implemented via `NOT EXISTS`, `NOT IN`, or a `LEFT JOIN` combined with `WHERE B.id IS NULL`.",
+      "notes": ""
+    },
+    {
+      "q": "What is the difference between UNION and UNION ALL?",
+      "freq": true,
+      "d": "e",
+      "a": "Both combine the result sets of two or more SELECT statements.<br><strong>UNION:</strong> Removes duplicate rows between the queries. It performs an implicit DISTINCT operation, making it slower because it has to sort/hash the data to find duplicates.<br><strong>UNION ALL:</strong> Keeps all duplicate rows. It simply appends the second result set to the first. It is significantly faster.<br><br><em>Rule:</em> Always use UNION ALL unless you strictly need to remove duplicates.",
+      "cross": [
+        "What are INTERSECT and EXCEPT? \u2192 INTERSECT returns rows present in both queries. EXCEPT (or MINUS) returns rows in the first query but not the second."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "Explain Subqueries vs Correlated Subqueries.",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>Standard Subquery:</strong> The inner query runs completely independently, exactly ONCE, and passes its result to the outer query. <br><em>Example:</em> `SELECT name FROM emp WHERE dept_id IN (SELECT id FROM depts WHERE location='NY');`<br><br><strong>Correlated Subquery:</strong> The inner query references a column from the outer query. It cannot run independently. It executes ONCE FOR EVERY ROW evaluated by the outer query, making it potentially very slow (O(N*M)).<br><em>Example:</em> `SELECT name FROM emp e1 WHERE salary > (SELECT AVG(salary) FROM emp e2 WHERE e1.dept_id = e2.dept_id);`",
+      "notes": ""
+    },
+    {
+      "q": "What is the difference between IN and EXISTS?",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>IN:</strong> Evaluates the inner query, extracts the specific column values into a list, and compares the outer value against that list. Better when the inner query result set is small.<br><strong>EXISTS:</strong> Evaluates true/false. It stops scanning the inner query as soon as it finds the first matching row (Short-circuiting). Much faster when the inner query result set is massive, but the outer table is small.",
+      "trap": "`NOT IN` fails completely (returns 0 rows) if the subquery returns even a single NULL value. `NOT EXISTS` handles NULLs correctly.",
+      "notes": ""
+    },
+    {
+      "q": "Explain Window Functions in SQL. What is the OVER() clause?",
+      "freq": true,
+      "d": "h",
+      "a": "Window functions perform calculations across a set of table rows related to the current row, WITHOUT collapsing the rows (unlike GROUP BY).<br>The <strong>OVER()</strong> clause defines the 'window' of rows the function operates on.<br>\u2014 <strong>PARTITION BY:</strong> Divides the result set into partitions (like GROUP BY for windows).<br>\u2014 <strong>ORDER BY:</strong> Sorts rows within the partition.<br><br><em>Example:</em> `SELECT name, salary, SUM(salary) OVER(PARTITION BY dept_id) as dept_total FROM employees;`<br>This returns every employee, but attaches their department's total salary to their row.",
+      "trap": "Window functions cannot be used in the WHERE clause. If you need to filter by a window function (e.g., Row_Number = 1), you must wrap it in a CTE or Subquery.",
+      "notes": ""
+    },
+    {
+      "q": "What is the difference between ROW_NUMBER(), RANK(), and DENSE_RANK()?",
+      "freq": true,
+      "d": "m",
+      "a": "These are ranking Window Functions.<br>Given scores: 90, 90, 85, 80.<br>\u2014 <strong>ROW_NUMBER():</strong> Assigns a unique, sequential integer to every row, ignoring ties. (1, 2, 3, 4).<br>\u2014 <strong>RANK():</strong> Gives the same rank to ties, but skips the next numbers. (1, 1, 3, 4).<br>\u2014 <strong>DENSE_RANK():</strong> Gives the same rank to ties, but DOES NOT skip numbers. (1, 1, 2, 3).",
+      "cross": [
+        "How do you find the Nth highest salary? \u2192 Use `DENSE_RANK() OVER (ORDER BY salary DESC)` inside a CTE, then `SELECT WHERE rank = N`."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "Explain LEAD() and LAG() functions.",
+      "freq": true,
+      "d": "m",
+      "a": "They are Window Functions used to access data from subsequent or previous rows in the same result set without using a self-join.<br>\u2014 <strong>LAG(col, N):</strong> Looks back N rows. (e.g., compare current month sales to previous month).<br>\u2014 <strong>LEAD(col, N):</strong> Looks forward N rows.<br><br><em>Example:</em> `SELECT month, sales, LAG(sales, 1) OVER(ORDER BY month) as prev_month_sales FROM financial_data;`",
+      "notes": ""
+    },
+    {
+      "q": "What is a CTE (Common Table Expression) and a Recursive CTE?",
+      "freq": true,
+      "d": "h",
+      "a": "<strong>CTE:</strong> Defined using the `WITH` clause. It creates a temporary result set that can be referenced within a SELECT, INSERT, UPDATE, or DELETE statement. It makes complex queries more readable compared to nested subqueries.<br><br><strong>Recursive CTE:</strong> A CTE that references itself. It is specifically used to query hierarchical or graph data (e.g., Organizational charts: Manager -> Employee, or finding all children in a folder tree).<br><em>Structure:</em> Contains an <strong>Anchor Member</strong> (base case) `UNION ALL` with a <strong>Recursive Member</strong> (references the CTE), followed by a termination condition.",
+      "trap": "If the recursive CTE lacks a proper termination condition, it will result in an infinite loop error.",
+      "notes": ""
+    },
+    {
+      "q": "Explain the difference between a View and a Materialized View.",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>View:</strong> A saved SQL query (virtual table). It does NOT store data physically. Every time you query the view, the database re-runs the underlying SQL. Used for security (hiding columns) and simplifying complex joins.<br><br><strong>Materialized View:</strong> Physically stores the result set of the query on disk. Querying it is extremely fast, but the data becomes stale as the underlying tables change. Requires a <strong>Refresh Strategy</strong> (Manual, Scheduled, or On-Commit). Used heavily in Data Warehousing (OLAP).",
+      "cross": [
+        "Can you update a View? \u2192 Yes, 'Updatable Views' exist if they reference a single table without aggregates or distinct clauses. Materialized views are read-only."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "What is a Trigger in SQL?",
+      "freq": false,
+      "d": "m",
+      "a": "A <strong>Trigger</strong> is a special type of stored procedure that automatically executes (fires) in response to a specific event (INSERT, UPDATE, DELETE) on a particular table.<br>\u2014 <strong>Timing:</strong> Can run `BEFORE` (to validate or modify data before saving) or `AFTER` (to log history or update related tables).<br>\u2014 <strong>Level:</strong> `FOR EACH ROW` (runs once per affected row) or `STATEMENT LEVEL` (runs once per query).",
+      "trap": "Avoid heavy business logic in triggers. They are 'hidden' side effects that can make debugging very difficult and slow down bulk DML operations.",
+      "notes": ""
+    },
+    {
+      "q": "What is the difference between a Stored Procedure and a User-Defined Function (UDF)?",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>Function:</strong> Must return a single value (or table). Cannot modify database state (No INSERT/UPDATE/DELETE). Can be called directly within a `SELECT` statement.<br><br><strong>Stored Procedure:</strong> Can return zero, one, or multiple parameters. Can modify database state. Cannot be used inside a `SELECT` statement; must be called using `EXECUTE` or `CALL`. Can use Transactions (COMMIT/ROLLBACK) inside them, whereas Functions cannot.",
+      "notes": ""
+    },
+    {
+      "q": "How does NULL behave in SQL? Explain COALESCE and NULLIF.",
+      "freq": true,
+      "d": "e",
+      "a": "<strong>NULL</strong> represents a missing or unknown value. It is NOT zero or an empty string. <br>Because it is unknown, `NULL = NULL` evaluates to UNKNOWN, not TRUE. You must use `IS NULL` or `IS NOT NULL`.<br><br><strong>COALESCE(val1, val2, val3):</strong> Returns the first non-NULL value in the list.<br><strong>NULLIF(val1, val2):</strong> Returns NULL if val1 equals val2. Otherwise, returns val1. (Often used to prevent 'Divide by Zero' errors: `score / NULLIF(total, 0)`).",
+      "trap": "Aggregate functions like SUM() and AVG() automatically ignore NULL values. However, COUNT(*) counts rows including NULLs, while COUNT(column) ignores NULLs.",
+      "notes": ""
+    },
+    {
+      "q": "What are Transaction States in DBMS?",
+      "freq": false,
+      "d": "e",
+      "a": "A transaction passes through several states:<br><strong>1. Active:</strong> The initial state; executing instructions.<br><strong>2. Partially Committed:</strong> After the last instruction executes, but before writing to disk.<br><strong>3. Committed:</strong> Successfully completed; changes are permanently saved to disk.<br><strong>4. Failed:</strong> An error occurs, or the transaction is aborted.<br><strong>5. Aborted:</strong> The transaction is rolled back, and the database is restored to its prior state.",
+      "notes": ""
+    },
+    {
+      "q": "Explain the Concurrency Control Problems: Dirty Read, Non-Repeatable Read, and Phantom Read.",
+      "freq": true,
+      "d": "h",
+      "a": "When transactions run concurrently, anomalies can occur:<br><strong>1. Dirty Read:</strong> T1 modifies a row. T2 reads that uncommitted data. T1 rolls back. T2 now has data that never technically existed.<br><strong>2. Non-Repeatable Read:</strong> T1 reads a row. T2 updates that row and commits. T1 reads the SAME row again and sees a different value.<br><strong>3. Phantom Read:</strong> T1 queries a RANGE of rows (e.g., `WHERE age > 20`). T2 inserts a new row matching that condition and commits. T1 repeats the query and sees a 'phantom' row that wasn't there before.",
+      "cross": [
+        "What is a Lost Update? \u2192 Two transactions read the same value, modify it locally, and write it back. One overwrite's the other's change."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "Explain Transaction Isolation Levels.",
+      "freq": true,
+      "d": "h",
+      "a": "Isolation levels trade off strict consistency for performance. Defined by ANSI SQL:<br><strong>1. Read Uncommitted:</strong> No locks. Allows Dirty, Non-Repeatable, and Phantom reads. Fastest.<br><strong>2. Read Committed:</strong> Prevents Dirty Reads (only reads committed data). Allows Non-Repeatable and Phantom reads. (Default in Postgres/SQL Server).<br><strong>3. Repeatable Read:</strong> Prevents Dirty and Non-Repeatable Reads by locking rows read. Allows Phantom reads. (Default in MySQL InnoDB).<br><strong>4. Serializable:</strong> Highest isolation. Prevents all anomalies using range locks or executing transactions sequentially. Very slow, high chance of deadlocks.",
+      "trap": "MySQL InnoDB's 'Repeatable Read' actually prevents Phantom Reads as well, using a mechanism called Gap Locks. This is an exception to the ANSI standard.",
+      "notes": ""
+    },
+    {
+      "q": "What are Database Locks? Shared vs Exclusive.",
+      "freq": true,
+      "d": "m",
+      "a": "Locks prevent concurrent transactions from interfering with each other.<br><strong>Shared Lock (S-Lock / Read Lock):</strong> Multiple transactions can hold a shared lock on a row simultaneously to read it. However, no transaction can write to it.<br><strong>Exclusive Lock (X-Lock / Write Lock):</strong> Required for INSERT/UPDATE/DELETE. Only ONE transaction can hold an exclusive lock. If held, no other transaction can read (usually) or write to that row.",
+      "cross": [
+        "What is Intention Locking? \u2192 A table-level lock indicating that a transaction intends to acquire row-level locks. Prevents another transaction from locking the whole table."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "What is the Two-Phase Locking (2PL) Protocol?",
+      "freq": false,
+      "d": "h",
+      "a": "2PL is a concurrency control method that guarantees <strong>Serializability</strong> (execution is equivalent to running transactions one after another).<br>It has two phases:<br><strong>1. Growing Phase:</strong> Transaction can acquire new locks but cannot release any locks.<br><strong>2. Shrinking Phase:</strong> Once the transaction releases its first lock, it enters the shrinking phase. It can release existing locks but cannot acquire ANY new locks.<br><br>While 2PL ensures serializability, it is highly prone to <strong>Deadlocks</strong>.",
+      "notes": ""
+    },
+    {
+      "q": "What is a Deadlock? How is it handled in a DBMS?",
+      "freq": true,
+      "d": "m",
+      "a": "A <strong>Deadlock</strong> occurs when two or more transactions are waiting indefinitely for locks held by each other. (e.g., T1 holds Lock A, wants Lock B. T2 holds Lock B, wants Lock A).<br><br><strong>Handling Mechanisms:</strong><br>\u2014 <strong>Deadlock Detection:</strong> DB periodically builds a 'Wait-For Graph'. If a cycle is detected, the DB acts as a 'Deadlock Detector', aborting/killing one transaction (the victim) to unblock the other.<br>\u2014 <strong>Deadlock Prevention:</strong> Using Timestamp ordering. Older transactions get priority (Wait-Die or Wound-Wait schemes).<br>\u2014 <strong>Application side:</strong> Always lock tables/rows in the exact same alphabetical order across the codebase.",
+      "notes": ""
+    },
+    {
+      "q": "What is MVCC (Multi-Version Concurrency Control)?",
+      "freq": true,
+      "d": "h",
+      "a": "<strong>MVCC</strong> is a lock-free concurrency mechanism used by Postgres, Oracle, and InnoDB.<br>Instead of locking rows when reading/writing, the DBMS creates <strong>multiple versions</strong> of a row. <br>When T1 updates a row, it doesn't overwrite it immediately. It creates a new version. If T2 queries the row simultaneously, the DB serves T2 the old version. <br><br><strong>Motto:</strong> 'Readers don't block writers, and writers don't block readers.'<br>This drastically improves performance in read-heavy applications compared to strict lock-based protocols.",
+      "trap": "Because MVCC creates multiple versions, it requires a cleanup process (called 'VACUUM' in Postgres) to remove dead rows and reclaim disk space.",
+      "notes": ""
+    },
+    {
+      "q": "What is Indexing? How does it speed up queries?",
+      "freq": true,
+      "d": "e",
+      "a": "An <strong>Index</strong> is a separate data structure (like a book's index) that stores a copy of the indexed column(s) and a pointer to the actual physical row on disk. <br>Without an index, the database must perform a <strong>Full Table Scan</strong> (O(N)), checking every single row.<br>With an index (usually a B+ Tree), the database performs a tree traversal (O(log N)), finding the row almost instantly.",
+      "trap": "Indexes speed up SELECTs but slow down INSERTs, UPDATEs, and DELETEs because the index tree must be updated and rebalanced every time the data changes.",
+      "notes": ""
+    },
+    {
+      "q": "Explain Clustered vs Non-Clustered Indexes.",
+      "freq": true,
+      "d": "h",
+      "a": "<strong>Clustered Index:</strong> Dictates the physical storage order of the data rows on the disk. Therefore, a table can have ONLY ONE clustered index (usually the Primary Key). The leaf nodes of the index tree ARE the actual data rows.<br><br><strong>Non-Clustered (Secondary) Index:</strong> A separate structure from the data. The leaf nodes contain the indexed value and a pointer (or the clustered key) to the actual data row. A table can have multiple non-clustered indexes. Reading requires an extra 'hop' from the index to the table.",
+      "cross": [
+        "What is an Index-Only Scan (Covering Index)? \u2192 If a non-clustered index contains all the columns requested in the SELECT clause, the DB doesn't need to visit the actual table. It returns data straight from the index, which is extremely fast."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "Why do Databases use B+ Trees instead of B-Trees or Binary Trees for indexing?",
+      "freq": true,
+      "d": "h",
+      "a": "<strong>Binary Trees</strong> are too deep (high depth), meaning too many disk I/O operations are required to traverse them. DBs need shallow/fat trees.<br><br><strong>B-Trees vs B+ Trees:</strong><br>In a standard B-Tree, actual data (or pointers) can be stored in internal nodes. <br>In a <strong>B+ Tree</strong>:<br>1. Data pointers are stored ONLY in the leaf nodes. Internal nodes only hold routing keys. This allows more keys per page, making the tree flatter (less disk I/O).<br>2. <strong>Leaf nodes are linked together</strong> (Doubly Linked List). This makes <strong>Range Queries</strong> (`WHERE age BETWEEN 20 AND 30`) incredibly fast\u2014you traverse down to 20, then simply read linearly across the leaves.",
+      "trap": "Never confuse a Binary Tree with a B-Tree. B-Trees have hundreds of children per node to match disk block sizes.",
+      "notes": ""
+    },
+    {
+      "q": "What is a Composite Index? Explain the Leftmost Prefix Rule.",
+      "freq": true,
+      "d": "h",
+      "a": "A <strong>Composite Index</strong> is an index on multiple columns (e.g., `INDEX(last_name, first_name)`).<br><br>The <strong>Leftmost Prefix Rule</strong> dictates that the database can only use the index if the query uses the leftmost columns of the index.<br>Given `INDEX(A, B, C)`:<br>\u2014 `WHERE A = 1` (Uses index)<br>\u2014 `WHERE A = 1 AND B = 2` (Uses index)<br>\u2014 `WHERE A = 1 AND B = 2 AND C = 3` (Uses index)<br>\u2014 `WHERE B = 2` (<strong>Does NOT use index</strong> - performs table scan)<br>\u2014 `WHERE C = 3` (<strong>Does NOT use index</strong>)<br>\u2014 `WHERE A = 1 AND C = 3` (Uses index for A, scans for C).",
+      "trap": "Column order in the index definition matters immensely. Put the most queried and most selective (high cardinality) column first.",
+      "notes": ""
+    },
+    {
+      "q": "Hash Index vs B+ Tree Index. When to use which?",
+      "freq": false,
+      "d": "m",
+      "a": "<strong>Hash Index:</strong> Uses a hash table. Provides O(1) lookup time. <br><em>Limitation:</em> It only supports exact matches (`WHERE id = 5`). It CANNOT perform range queries (`WHERE id > 5`) or sorting (`ORDER BY`). Memory intensive.<br><br><strong>B+ Tree Index:</strong> Provides O(log N) lookup time. <br><em>Advantage:</em> Supports exact matches, range queries, sorting, and prefix matching (LIKE 'abc%').<br><br>Most relational databases default to B+ Trees. Hash indexes are used mostly in in-memory DBs like Redis or specific Memory-Optimized tables.",
+      "notes": ""
+    },
+    {
+      "q": "How do you Optimize a slow SQL query?",
+      "freq": true,
+      "d": "h",
+      "a": "1. <strong>Use EXPLAIN / EXPLAIN ANALYZE:</strong> View the execution plan to find bottlenecks (Full Table Scans, temporary files).<br>2. <strong>Add Missing Indexes:</strong> Specifically on columns used in WHERE, JOIN, and ORDER BY.<br>3. <strong>Avoid SELECT *:</strong> Only retrieve needed columns to reduce memory and network I/O. Allows for Covering Indexes.<br>4. <strong>Rewrite Correlated Subqueries:</strong> Change them into standard JOINs.<br>5. <strong>Avoid Functions on Indexed Columns:</strong> `WHERE YEAR(date) = 2023` ignores the index on `date`. Rewrite to `WHERE date >= '2023-01-01' AND date < '2024-01-01'`.<br>6. <strong>Use LIMIT:</strong> For pagination, use keyset pagination instead of heavy OFFSETs.",
+      "cross": [
+        "What is Sargable? \u2192 Search-Argument-Able. Queries written in a way that allows the DB to utilize indexes (e.g., avoiding leading wildcards like `LIKE '%abc'`)."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "What is Database Partitioning? Vertical vs Horizontal.",
+      "freq": true,
+      "d": "m",
+      "a": "Partitioning divides a large table into smaller, more manageable pieces while keeping them in the <strong>same database instance</strong>.<br><br><strong>Vertical Partitioning:</strong> Splitting columns. Moving rarely used or massive columns (like BLOBs/TEXT) into a separate table to reduce I/O for standard queries.<br><strong>Horizontal Partitioning:</strong> Splitting rows. E.g., Partitioning a 'Sales' table by year (Sales_2022, Sales_2023). Queries filtering by year only scan the relevant partition (Partition Pruning), massively speeding up queries.",
+      "trap": "Partitioning happens on a single server. If you distribute horizontally across multiple physical servers, that is called Sharding.",
+      "notes": ""
+    },
+    {
+      "q": "What is Database Sharding?",
+      "freq": true,
+      "d": "h",
+      "a": "<strong>Sharding</strong> is an architecture where horizontal partitions of a database are distributed across <strong>multiple independent physical servers (Shards)</strong>.<br>It is the primary method of <strong>Horizontal Scaling</strong> for databases handling massive datasets/traffic that exceed the capacity of a single machine.<br><br><strong>Challenges:</strong><br>\u2014 <strong>Shard Key Selection:</strong> You must choose a column (e.g., `user_id % 4`) to route data. A bad shard key leads to 'Hotspots' (one server getting all the traffic).<br>\u2014 <strong>Cross-Shard Joins:</strong> Joining data that lives on two different servers is extremely slow and complex.<br>\u2014 <strong>ACID loss:</strong> Maintaining distributed transactions across shards often requires complex Two-Phase Commit protocols.",
+      "notes": ""
+    },
+    {
+      "q": "Explain Database Replication (Master-Slave vs Master-Master).",
+      "freq": true,
+      "d": "h",
+      "a": "Replication involves keeping copies of data across multiple servers for High Availability (HA) and Read scaling.<br><br><strong>Master-Slave (Primary-Replica):</strong><br>\u2014 One node (Master) accepts all Writes and Reads.<br>\u2014 Multiple nodes (Slaves) accept ONLY Reads. The Master asynchronously streams its WAL/Binlog to Slaves.<br>\u2014 <em>Pros:</em> Scales read-heavy applications easily.<br>\u2014 <em>Cons:</em> Replication Lag (reading a slave might return stale data). If Master dies, a slave must be promoted.<br><br><strong>Master-Master:</strong><br>\u2014 Multiple nodes accept both Writes and Reads.<br>\u2014 <em>Pros:</em> High availability for writes.<br>\u2014 <em>Cons:</em> Complex conflict resolution (what if two masters update the same row simultaneously?).",
+      "notes": ""
+    },
+    {
+      "q": "What is the CAP Theorem?",
+      "freq": true,
+      "d": "h",
+      "a": "The <strong>CAP Theorem</strong> states that a distributed data store can guarantee only <strong>TWO</strong> of the following three properties simultaneously:<br><br><strong>C \u2014 Consistency:</strong> Every read receives the most recent write (all nodes see the exact same data at the same time).<br><strong>A \u2014 Availability:</strong> Every request receives a non-error response, without the guarantee that it contains the most recent write.<br><strong>P \u2014 Partition Tolerance:</strong> The system continues to operate despite network failures dropping messages between nodes.<br><br>Because network partitions (P) are inevitable in distributed systems, you must choose between <strong>CP</strong> (Consistent, but might block/fail during network issues - e.g., MongoDB, HBase) or <strong>AP</strong> (Always available, but might return stale data - e.g., Cassandra, DynamoDB).",
+      "trap": "Again, CAP Consistency is about Distributed State (Node A vs Node B). ACID Consistency is about Database Rules (Age > 0).",
+      "notes": ""
+    },
+    {
+      "q": "Relational (SQL) vs Non-Relational (NoSQL) Databases. When to choose what?",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>SQL (Relational):</strong><br>\u2014 Fixed schema, structured data.<br>\u2014 Strict ACID compliance.<br>\u2014 Complex joins across tables.<br>\u2014 Scales vertically (harder/expensive).<br>\u2014 <em>Use case:</em> Financial systems, ERPs, inventory management.<br><br><strong>NoSQL (Non-Relational):</strong><br>\u2014 Dynamic/Flexible schema (JSON, Key-Value).<br>\u2014 Eventual consistency (usually BASE, not ACID).<br>\u2014 Built for massive horizontal scaling across clusters.<br>\u2014 <em>Use case:</em> Real-time big data, social media feeds, IoT sensor data, rapid prototyping.",
+      "cross": [
+        "What does BASE stand for? \u2192 Basically Available, Soft state, Eventual consistency. It is the NoSQL answer to ACID."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "What are the different types of NoSQL databases?",
+      "freq": false,
+      "d": "m",
+      "a": "<strong>1. Document Store:</strong> Stores data in JSON/BSON-like documents. Great for unstructured data and general use. (e.g., MongoDB, CouchDB).<br><strong>2. Key-Value Store:</strong> Highly performant hash table. Extremely fast lookups by key. Used for caching and session management. (e.g., Redis, DynamoDB, Memcached).<br><strong>3. Wide-Column Store:</strong> Optimized for queries over large datasets, stores data in column families rather than rows. Used for time-series and IoT data. (e.g., Cassandra, HBase).<br><strong>4. Graph Database:</strong> Focuses heavily on the relationships between data points (nodes and edges). Used for recommendation engines, fraud detection, and social networks. (e.g., Neo4j).",
+      "notes": ""
+    },
+    {
+      "q": "What is a Connection Pool?",
+      "freq": false,
+      "d": "m",
+      "a": "Opening a new network connection to the database and authenticating is a very heavy, slow operation.<br>A <strong>Connection Pool</strong> is a cache of database connections maintained by the application server so that connections can be reused when future requests to the database are required.<br>Instead of creating a new connection per user request, the app borrows an active connection from the pool, runs the query, and returns it. This vastly improves application throughput and prevents DB server overload.",
+      "notes": ""
+    },
+    {
+      "q": "What is the N+1 Query Problem?",
+      "freq": true,
+      "d": "h",
+      "a": "An anti-pattern common in Object-Relational Mappers (ORMs) like Hibernate, Entity Framework, or Prisma.<br>It occurs when an application executes <strong>1</strong> query to fetch a list of entities, and then executes <strong>N</strong> additional queries to fetch a related entity for each item in the list.<br><br><em>Example:</em> <br>1 query: `SELECT * FROM authors;` (Returns 100 authors).<br>100 queries: `SELECT * FROM books WHERE author_id = X;`<br><br><strong>Solution:</strong> Eager loading using JOINs. Fetching everything in a single query: `SELECT * FROM authors LEFT JOIN books ON authors.id = books.author_id;`",
+      "notes": ""
+    },
+    {
+      "q": "What is a Cursor in SQL?",
+      "freq": false,
+      "d": "m",
+      "a": "Relational databases are set-based (they process data in bulk sets). <br>A <strong>Cursor</strong> is a database object used in Stored Procedures that allows you to fetch and process rows one-by-one (row-by-row iteration) from a result set.<br><br><em>Why avoid them?</em> Iterating row-by-row in SQL is extremely slow and locks resources. You should almost always replace a cursor logic with standard set-based operations (JOINs, Window Functions, CASE statements).",
+      "notes": ""
+    },
+    {
+      "q": "Explain Database Backup strategies (Full, Differential, Incremental).",
+      "freq": false,
+      "d": "m",
+      "a": "<strong>Full Backup:</strong> A complete copy of the entire database. Slow to create, fast to restore.<br><strong>Differential Backup:</strong> Backs up all data changed since the LAST FULL backup. Moderate to create, moderate to restore (requires Full + latest Differential).<br><strong>Incremental Backup:</strong> Backs up only the data changed since the LAST BACKUP (of any kind). Fastest to create, slowest to restore (requires Full + every Incremental in order).<br><br><em>Point-In-Time Recovery (PITR):</em> Restoring a full backup and then continuously replaying the WAL/Transaction Logs to restore the DB to a specific second before a crash.",
+      "notes": ""
+    },
+    {
+      "q": "What is Schema-on-Read vs Schema-on-Write?",
+      "freq": false,
+      "d": "m",
+      "a": "<strong>Schema-on-Write (RDBMS):</strong> The structure (schema) is defined BEFORE data is inserted. If incoming data doesn't match the table columns or data types, it is rejected. Ensures high integrity.<br><br><strong>Schema-on-Read (NoSQL / Data Lakes):</strong> Data is stored 'as is' without strict structural rules. The schema/structure is only applied dynamically when the data is queried (read). Provides massive flexibility and fast write speeds.",
+      "notes": ""
+    },
+    {
+      "q": "Explain the concepts of OLTP vs OLAP.",
+      "freq": true,
+      "d": "e",
+      "a": "<strong>OLTP (Online Transaction Processing):</strong> Designed for frontline applications. Focuses on rapid, short, transactional queries (INSERT, UPDATE, DELETE). High concurrency. Highly normalized schema (3NF) to ensure ACID. (e.g., MySQL for E-commerce checkout).<br><br><strong>OLAP (Online Analytical Processing):</strong> Designed for Data Warehouses and BI. Focuses on complex, massive read-only queries (Aggregations, GROUP BYs) over historical data. Denormalized schema (Star/Snowflake schema) to reduce JOINs and speed up reads. (e.g., Snowflake, Redshift for calculating yearly sales trends).",
+      "notes": ""
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+{
+  "id": "dsa",
+  "icon": "🔢",
+  "title": "DSA Master Guide",
+  "bg": "#EAF3DE",
+  "questions": [
+    {
+      "q": "What is Amortized Time Complexity? Explain with a Dynamic Array.",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>Amortized analysis</strong> gives the average cost per operation over a <em>sequence</em> of operations, even if a single operation occasionally takes much longer.<br><br><strong>Dynamic Array (e.g., Python `list`, Java `ArrayList`):</strong><br>Appending an item normally takes O(1) time. However, when the underlying fixed-size array is full, the system must allocate a new array of double the size (2N) and copy all N elements over. This specific resize operation takes O(N) time.<br><br>But how often does this happen? <br>If we start with size 1, we resize at sizes 1, 2, 4, 8, 16...<br>The total cost of copying for N insertions is `1 + 2 + 4 + ... + N/2 + N`. <br>This is a geometric series that sums to `2N`.<br>Therefore, the total cost for N insertions is `N (for the actual appends) + 2N (for copying) = 3N`.<br>Dividing the total work (3N) by N operations gives an <strong>Amortized Time Complexity of O(1)</strong> per append.",
+      "trap": "Do not confuse Amortized Time with Average Case Time. Average Case is based on the probability of random inputs. Amortized is a strict mathematical guarantee over a continuous sequence of operations.",
+      "notes": ""
+    },
+    {
+      "q": "What is the difference between a Tree, a Binary Tree, and a Binary Search Tree (BST)?",
+      "freq": true,
+      "d": "e",
+      "a": "<strong>Tree:</strong> A connected, acyclic graph consisting of nodes and edges, with a single root node. A node can have any number of children.<br><br><strong>Binary Tree:</strong> A tree where every node has <em>at most two children</em> (Left and Right). No specific ordering of values is required.<br><br><strong>Binary Search Tree (BST):</strong> A Binary Tree that strictly enforces a <strong>sorting property</strong>: For any given node, ALL values in its Left subtree must be strictly less than the node's value, and ALL values in its Right subtree must be greater. <br>This property allows for O(log N) search, insertion, and deletion times (assuming the tree is balanced).",
+      "cross": [
+        "What happens if you insert already sorted data into a standard BST? \u2192 It degrades into a linked list (a straight line of right children), making search O(N). This is why self-balancing trees (AVL, Red-Black) are necessary."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "What is a Heap (Priority Queue)? Explain its operations.",
+      "freq": true,
+      "d": "m",
+      "a": "A <strong>Heap</strong> is a Complete Binary Tree (filled top-to-bottom, left-to-right) that satisfies the Heap Property.<br>\u2014 <strong>Max-Heap:</strong> Every parent node is \u2265 its children. (The root is the absolute maximum).<br>\u2014 <strong>Min-Heap:</strong> Every parent node is \u2264 its children. (The root is the absolute minimum).<br><br><strong>Array Representation:</strong> Because it is complete, it is always stored as a flat array to save memory. For a node at index `i`:<br>\u2014 Left child = `2i + 1`<br>\u2014 Right child = `2i + 2`<br>\u2014 Parent = `(i - 1) / 2`<br><br><strong>Operations:</strong><br>\u2014 <strong>Peek:</strong> O(1) (just read array[0]).<br>\u2014 <strong>Insert:</strong> O(log N). Add to the end of the array, then 'Bubble Up' (swap with parent until the heap property is restored).<br>\u2014 <strong>Extract-Max/Min:</strong> O(log N). Remove the root, move the very last element of the array to the root, then 'Bubble Down' (swap with the largest/smallest child).",
+      "cross": [
+        "What is Heapify? \u2192 The process of converting an unsorted array into a valid Heap. It uniquely takes O(N) time, NOT O(N log N), if done bottom-up."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "Explain BFS vs DFS in Graphs/Trees. When to use which?",
+      "freq": true,
+      "d": "e",
+      "a": "<strong>Breadth-First Search (BFS):</strong><br>Explores level-by-level, radiating outward from the start node. <br>\u2014 <em>Data Structure:</em> Queue (FIFO).<br>\u2014 <em>Use Cases:</em> Finding the <strong>Shortest Path</strong> in an unweighted graph, finding all friends within 2 degrees of connection, level-order tree traversal.<br>\u2014 <em>Space Complexity:</em> O(W), where W is the maximum width of the tree/graph. Bad for very wide graphs.<br><br><strong>Depth-First Search (DFS):</strong><br>Explores as far down one path as possible before backtracking.<br>\u2014 <em>Data Structure:</em> Stack (LIFO) or Recursion.<br>\u2014 <em>Use Cases:</em> Cycle detection, Topological Sorting, solving Mazes, counting Connected Components.<br>\u2014 <em>Space Complexity:</em> O(H), where H is the maximum depth. Bad for infinitely deep graphs (can cause StackOverflow).",
+      "trap": "For graph traversal, NEVER forget to maintain a `visited` Set (Hash Set). Without it, a cycle in the graph will cause an infinite loop.",
+      "notes": ""
+    },
+    {
+      "q": "Explain Graph Representations: Adjacency Matrix vs Adjacency List.",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>Adjacency Matrix:</strong> A 2D array (V x V) where `matrix[i][j] = 1` if an edge exists between node i and node j.<br>\u2014 <em>Space Complexity:</em> O(V\u00b2). Terrible for sparse graphs (wastes huge memory on 0s).<br>\u2014 <em>Time to check if edge exists:</em> O(1). Fast.<br>\u2014 <em>Time to find all neighbors of a node:</em> O(V). Slow, must scan the whole row.<br><br><strong>Adjacency List:</strong> An Array (or HashMap) of Lists. `list[i]` contains a linked list of all neighbors of node i.<br>\u2014 <em>Space Complexity:</em> O(V + E). Highly efficient for sparse graphs (most real-world graphs like social networks or maps).<br>\u2014 <em>Time to check if edge exists:</em> O(Degree of V). Slower.<br>\u2014 <em>Time to find all neighbors:</em> O(Degree of V). Extremely fast, just iterate the list.",
+      "trap": "In interviews, default to Adjacency List unless the problem explicitly involves a dense graph or requires instant edge-checking.",
+      "notes": ""
+    },
+    {
+      "q": "What is Topological Sort? When is it used?",
+      "freq": true,
+      "d": "h",
+      "a": "<strong>Topological Sorting</strong> is a linear ordering of vertices such that for every directed edge `U -> V`, vertex `U` comes strictly before `V` in the ordering.<br><br><strong>Constraint:</strong> It is ONLY possible on a <strong>DAG (Directed Acyclic Graph)</strong>. If the graph contains a cycle, topological sorting is mathematically impossible.<br><br><strong>Use Cases:</strong><br>\u2014 Task scheduling with prerequisites (e.g., 'You must take CS101 before CS201').<br>\u2014 Package managers (NPM/Maven) resolving build dependencies.<br>\u2014 Determining the compilation order of source files.<br><br><strong>Algorithms:</strong><br>1. <strong>Kahn's Algorithm (BFS):</strong> Calculate the 'in-degree' (number of incoming edges) for all nodes. Push all nodes with 0 in-degree to a Queue. Pop, add to result, and decrement the in-degree of all neighbors. Repeat.<br>2. <strong>DFS:</strong> Run standard DFS. When a node finishes exploring ALL its neighbors, push it to a Stack. Pop the stack at the end.",
+      "notes": ""
+    },
+    {
+      "q": "Dijkstra vs Bellman-Ford vs Floyd-Warshall.",
+      "freq": false,
+      "d": "h",
+      "a": "All are algorithms to find Shortest Paths in weighted graphs.<br><br><strong>1. Dijkstra's Algorithm:</strong><br>\u2014 Finds shortest path from one Source node to all other nodes.<br>\u2014 Uses a Min-Heap (Priority Queue) greedily choosing the closest unvisited node.<br>\u2014 Time: `O((V + E) log V)`. Extremely fast.<br>\u2014 <em>Fatal Flaw:</em> Fails completely if the graph contains <strong>Negative Weight Edges</strong>.<br><br><strong>2. Bellman-Ford:</strong><br>\u2014 Also Single-Source shortest path.<br>\u2014 Relaxes ALL edges exactly `V - 1` times.<br>\u2014 Time: `O(V * E)`. Slower.<br>\u2014 <em>Advantage:</em> Can handle Negative Weights. Furthermore, if it relaxes edges on a `V`th iteration, it successfully detects Negative Weight Cycles.<br><br><strong>3. Floyd-Warshall:</strong><br>\u2014 <strong>All-Pairs</strong> shortest path (finds shortest path between EVERY pair of nodes simultaneously).<br>\u2014 Uses Dynamic Programming (a 3D matrix).<br>\u2014 Time: `O(V\u00b3)`. Only viable for very small graphs.",
+      "notes": ""
+    },
+    {
+      "q": "What is a Trie (Prefix Tree)? Why use it over a HashMap?",
+      "freq": true,
+      "d": "h",
+      "a": "A <strong>Trie</strong> is a highly specialized tree data structure used for storing strings. Each node represents a single character. A path from the root to a node marked `isEndOfWord` represents a complete word.<br><br><strong>Why use it over a HashMap (HashSet)?</strong><br>If you want to check if the exact word \"apple\" exists, a HashSet is `O(L)` (where L is the length of the word to compute the hash). A Trie is also `O(L)`.<br><br>HOWEVER, HashSets cannot efficiently answer <strong>Prefix Queries</strong>. If you want to find \"All words that start with 'app'\", a HashSet requires you to iterate through every single word in the dictionary.<br>A Trie can jump directly to the 'p' node in `O(L)` time, and then run a simple DFS to find all valid words branching from there.<br><br><strong>Use Cases:</strong><br>Search Engine Autocomplete, Spell Checkers, IP Routing Longest-Prefix-Match, Boggle/Scrabble board solvers.",
+      "notes": ""
+    },
+    {
+      "q": "Explain Dynamic Programming: Memoization vs Tabulation.",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>Dynamic Programming (DP)</strong> optimizes exponential recursive algorithms (like `O(2^N)`) down to polynomial time (like `O(N)`) by caching the results of <em>Overlapping Subproblems</em>.<br><br><strong>1. Memoization (Top-Down):</strong><br>\u2014 You write a natural Recursive function.<br>\u2014 Before computing a subproblem, check if the result exists in a Cache (HashMap/Array). If yes, return it. If no, compute it, store it in the Cache, and return it.<br>\u2014 <em>Pros:</em> Intuitive to write. Only computes subproblems that are strictly necessary (Lazy Evaluation).<br>\u2014 <em>Cons:</em> Function call stack overhead. Can cause `StackOverflowError` on deep recursion.<br><br><strong>2. Tabulation (Bottom-Up):</strong><br>\u2014 You write an Iterative function using loops.<br>\u2014 You build an Array (or Matrix) starting from the base cases (`dp[0]`, `dp[1]`) and use them to calculate the next step (`dp[2]`), all the way up to the target `dp[n]`.<br>\u2014 <em>Pros:</em> No recursion overhead. Extremely fast constant factors. Perfect cache locality.<br>\u2014 <em>Cons:</em> Forces you to compute ALL subproblems up to N, even if some aren't needed.",
+      "notes": ""
+    },
+    {
+      "q": "What is the Sliding Window technique?",
+      "freq": true,
+      "d": "m",
+      "a": "The <strong>Sliding Window</strong> is a subset of the Two-Pointer technique used to solve array/string problems involving contiguous subarrays or substrings, reducing `O(N\u00b2)` nested loops down to `O(N)` time.<br><br><strong>How it works:</strong><br>You maintain two pointers, `Left` and `Right`, which define a 'Window' of valid elements.<br>1. Expand the window by moving `Right` and adding the new element to your current state (e.g., sum, hashmap counts).<br>2. Check if the window violates the problem's constraint (e.g., 'sum is > target' or 'duplicate character found').<br>3. If invalid, shrink the window by moving `Left` forward, removing elements from your state until the window becomes valid again.<br>4. Keep track of the maximum/minimum window size found.<br><br><strong>Classic Problems:</strong> Longest Substring Without Repeating Characters, Maximum Sum Subarray of Size K, Minimum Window Substring.",
+      "notes": ""
+    },
+    {
+      "q": "What is Backtracking? How is it different from DFS/DP?",
+      "freq": true,
+      "d": "h",
+      "a": "<strong>Backtracking</strong> is an algorithmic paradigm used to find all (or some) solutions to computational problems by incrementally building candidates. If a candidate is determined to be invalid, the algorithm Abandons it (prunes the branch) and 'Backtracks' to the previous step to try a different path.<br><br><strong>Standard Template:</strong><br><code>1. Choose: Add an option to the current state.</code><br><code>2. Explore: Recursively call the function.</code><br><code>3. Un-Choose (Backtrack): Remove the option from the current state to try the next loop iteration.</code><br><br><strong>Difference from DFS:</strong> Backtracking <em>uses</em> DFS to traverse the decision tree, but specifically includes the 'Un-Choose' state-reversion step.<br><strong>Difference from DP:</strong> DP finds a single optimal value by caching overlapping subproblems. Backtracking generates ALL possible valid combinations/permutations. Backtracking problems rarely have overlapping subproblems, so caching doesn't help.<br><br><strong>Classic Problems:</strong> N-Queens, Sudoku Solver, Generate all Permutations/Subsets, Word Search.",
+      "notes": ""
+    },
+    {
+      "q": "Explain the Disjoint Set (Union-Find) data structure.",
+      "freq": false,
+      "d": "h",
+      "a": "<strong>Union-Find</strong> is a highly specialized data structure used to keep track of a set of elements partitioned into a number of disjoint (non-overlapping) subsets. It is the absolute best algorithm for <strong>finding Connected Components</strong> in an undirected graph or detecting cycles.<br><br><strong>Core Operations:</strong><br>1. <strong>Find(x):</strong> Determines which subset an element belongs to. (Usually returns a 'Root' representative node).<br>2. <strong>Union(x, y):</strong> Merges two subsets into a single subset.<br><br><strong>Crucial Optimizations:</strong><br>\u2014 <strong>Path Compression:</strong> During `Find(x)`, make every node visited along the path point directly to the Root. This flattens the tree, making future lookups instant.<br>\u2014 <strong>Union by Rank:</strong> During `Union`, always attach the smaller tree under the root of the taller tree to keep the overall tree shallow.<br><br>With both optimizations, operations run in <strong>O(\u03b1(N))</strong> time, where `\u03b1` is the Inverse Ackermann function. For all practical values of N, `\u03b1(N) <= 4`, meaning operations are effectively <strong>O(1) constant time</strong>.<br><br><strong>Use Case:</strong> Kruskal's Minimum Spanning Tree algorithm.",
+      "notes": ""
+    },
+    {
+      "q": "What is a Segment Tree?",
+      "freq": false,
+      "d": "h",
+      "a": "A <strong>Segment Tree</strong> is a binary tree used for storing information about intervals or segments. It allows querying and updating an array extremely efficiently.<br><br><strong>The Problem:</strong> Given an array of numbers, you need to frequently query the `Sum(L, R)` (or Min/Max) and frequently update individual elements `A[i] = X`.<br>\u2014 If you use a standard Array: Update is `O(1)`, but Range Query is `O(N)`.<br>\u2014 If you use a Prefix Sum Array: Range Query is `O(1)`, but Update is `O(N)` (you must rebuild the prefix array).<br><br><strong>The Solution:</strong> A Segment Tree achieves <strong>O(log N) for BOTH Queries and Updates</strong>.<br>The leaves of the tree represent individual array elements. Each internal node represents the aggregated result (e.g., Sum) of its two children. To query a range, you traverse the tree, aggregating the pre-computed nodes that perfectly cover your range in `O(log N)` time.<br><br><em>Advanced variant:</em> 'Lazy Propagation' allows you to update an entire range of elements `A[L...R] += X` in `O(log N)` time as well.",
+      "notes": ""
+    },
+    {
+      "q": "What is the Fast & Slow Pointer technique (Floyd's Cycle Finding)?",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>Floyd's Tortoise and Hare</strong> algorithm is a two-pointer technique used primarily on Linked Lists to detect cycles using exactly `O(1)` extra space.<br><br><strong>How it works:</strong><br>Initialize two pointers, `Slow` and `Fast`, at the head of the list.<br>In a loop, move `Slow` by 1 step, and `Fast` by 2 steps.<br>\u2014 If `Fast` reaches `null`, the linked list has an end (No Cycle).<br>\u2014 If the linked list has a cycle, the `Fast` pointer will eventually lap the `Slow` pointer from behind. If `Slow == Fast`, a cycle is detected.<br><br><strong>Finding the start of the cycle:</strong><br>Once they meet, reset `Slow` back to the Head. Keep `Fast` at the meeting point. Now, move BOTH pointers by exactly 1 step at a time. The exact node where they collide again is mathematically guaranteed to be the start of the cycle.",
+      "notes": ""
+    },
+    {
+      "q": "Explain Greedy Algorithms. When do they work?",
+      "freq": true,
+      "d": "m",
+      "a": "A <strong>Greedy Algorithm</strong> builds a solution piece by piece, always choosing the next piece that offers the most immediate, local benefit (the 'greedy' choice). It never reconsiders or backtracks on previous choices.<br><br><strong>When do they work?</strong><br>They only yield the globally optimal solution if the problem exhibits the <strong>Greedy-Choice Property</strong> (a global optimum can be reached by a series of local optimums) and <strong>Optimal Substructure</strong>.<br><br><strong>Examples where Greedy WORKS (Optimal):</strong><br>\u2014 Dijkstra's Shortest Path.<br>\u2014 Kruskal's/Prim's Minimum Spanning Tree.<br>\u2014 Fractional Knapsack Problem (taking items by highest value/weight ratio).<br>\u2014 Huffman Coding (Data compression).<br><br><strong>Examples where Greedy FAILS (Requires DP):</strong><br>\u2014 0/1 Knapsack Problem (you cannot break items; greedily taking the most valuable item might leave unusable empty space).<br>\u2014 Coin Change problem with arbitrary coin denominations (e.g., coins [1, 3, 4], target 6. Greedy takes 4+1+1 (3 coins). DP correctly finds 3+3 (2 coins)).",
+      "notes": ""
+    },
+    {
+      "q": "What is a Monotonic Stack?",
+      "freq": false,
+      "d": "h",
+      "a": "A <strong>Monotonic Stack</strong> is a standard Stack data structure that strictly maintains its elements in either increasing or decreasing order. It is a brilliant technique to solve 'Next Greater Element' array problems in <strong>O(N) time</strong> instead of `O(N\u00b2)`.<br><br><strong>How to find the 'Next Greater Element' for every item in an array:</strong><br>Iterate through the array. For the current element `X`:<br>While the stack is NOT empty AND `X` is greater than the element at the top of the stack:<br>\u2014 Pop the top element. You have just found the answer for the popped element (`X` is its next greater element).<br>Push `X` onto the stack.<br><br>Every element is pushed exactly once and popped exactly once, resulting in strict `O(N)` linear time.<br><strong>Classic Problems:</strong> Daily Temperatures, Largest Rectangle in Histogram, Trapping Rain Water.",
+      "notes": ""
+    },
+    {
+      "q": "Explain KMP (Knuth-Morris-Pratt) String Matching.",
+      "freq": false,
+      "d": "h",
+      "a": "<strong>The Problem:</strong> Finding a substring pattern `P` (length M) inside a text `T` (length N). The naive brute-force approach takes `O(N * M)` because upon every mismatch, it moves the text pointer back and starts comparing from scratch.<br><br><strong>KMP Solution:</strong> Achieves strictly <strong>O(N + M)</strong> time.<br>KMP avoids re-evaluating characters we have already seen. It pre-processes the pattern `P` to create an <strong>LPS Array (Longest Proper Prefix which is also a Suffix)</strong>.<br>For example, in pattern `ABABC`, the prefix `AB` appears again as a suffix. The LPS array tells us exactly how much of the pattern we can safely 'skip' without missing a potential match.<br>When a mismatch occurs in the text, instead of resetting the text pointer, KMP uses the LPS array to shift the pattern pointer backward intelligently, keeping the text pointer constantly moving forward.",
+      "notes": ""
+    },
+    {
+      "q": "What is a Hash Collision? How are they resolved?",
+      "freq": true,
+      "d": "m",
+      "a": "A <strong>Hash Collision</strong> occurs when a Hash Function maps two completely different keys to the exact same array index (bucket) in a HashMap.<br><br>Since hash functions output a finite range of integers, but inputs are infinite, collisions are mathematically inevitable (Pigeonhole Principle).<br><br><strong>Resolution Strategies:</strong><br>1. <strong>Separate Chaining:</strong> Each array bucket holds a Pointer to a Linked List. If a collision occurs, the new key-value pair is simply appended to the list at that bucket. When retrieving, you hash to the bucket, then iterate the linked list checking `.equals()`. (Java uses this, and upgrades the list to a Red-Black tree if it exceeds 8 elements for `O(log N)` lookup).<br>2. <strong>Open Addressing (Linear Probing):</strong> All data is stored directly in the array. If a collision occurs at index `i`, the algorithm sequentially probes `i+1`, `i+2`, until it finds an empty slot. Extremely memory efficient (no node pointers), but suffers heavily from 'clustering' as the table gets full.",
+      "notes": ""
+    },
+    {
+      "q": "What is tail recursion? Why is it useful?",
+      "freq": false,
+      "d": "m",
+      "a": "<strong>Tail Recursion</strong> occurs when the recursive call is the absolute <em>last</em> operation performed in the function. No calculation is performed after the recursive call returns.<br><br><code>// Not Tail Recursive: Needs the result of factorial(n-1) to multiply by n</code><br><code>int fact(n) { if (n==0) return 1; return n * fact(n-1); }</code><br><br><code>// Tail Recursive: Passes the accumulated result forward</code><br><code>int fact(n, acc) { if (n==0) return acc; return fact(n-1, n * acc); }</code><br><br><strong>Why it is useful:</strong> Modern compilers (C++, Scala, functional languages) recognize tail recursion and perform <strong>Tail Call Optimization (TCO)</strong>.<br>Because no state needs to be saved after the recursive call, the compiler reuses the <em>exact same stack frame</em> for every call instead of pushing new ones. This transforms the recursion into a highly efficient `while` loop under the hood, completely eliminating the risk of `StackOverflowError` and taking `O(1)` space.",
+      "notes": ""
+    }
+  ]
+}

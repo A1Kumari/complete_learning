@@ -1,0 +1,237 @@
+{
+  "id": "os",
+  "icon": "\u2699\ufe0f",
+  "title": "Operating Systems Master Guide",
+  "bg": "#E6F1FB",
+  "questions": [
+    {
+      "q": "What is the difference between a process and a thread? Why are threads called lightweight?",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>Process:</strong> An independent program in execution. Has its own virtual address space (code, data, heap, stack) and OS resources (file descriptors). Creating a process via <code>fork()</code> is expensive because it copies the memory space (mitigated by Copy-on-Write).<br><br><strong>Thread:</strong> A unit of execution within a process. Threads of the same process share the code, data, heap, and file descriptors. A thread only has its own: stack, registers, program counter, and thread-local storage.<br><br><strong>Why lightweight:</strong><br>\u2014 Creation doesn't require allocating a new virtual memory space.<br>\u2014 Context switching is faster (no need to flush the TLB / swap page tables).<br>\u2014 Communication is fast via shared memory (no IPC overhead).<br><br><strong>Danger:</strong> Shared memory leads to race conditions. One thread crashing (e.g., Segfault) brings down the entire process.",
+      "cross": [
+        "If threads share heap memory, what happens when one thread calls free() on a pointer another thread is using? \u2192 Dangling pointer, undefined behavior, likely a crash.",
+        "User-level vs Kernel-level threads? \u2192 User-level: Managed by runtime (e.g., Go Goroutines), OS sees 1 thread. Kernel-level: OS schedules them natively."
+      ],
+      "trap": "Don't just say 'processes don't share memory'. They CAN via explicit IPC (shared memory segments). The key is that threads share memory <em>by default</em>.",
+      "notes": ""
+    },
+    {
+      "q": "Explain the process lifecycle \u2014 all states and transitions.",
+      "freq": true,
+      "d": "e",
+      "a": "A process passes through these states:<br><strong>1. New:</strong> Being created (OS allocating PCB and memory).<br><strong>2. Ready:</strong> Loaded in memory, waiting in the ready queue to be assigned CPU time.<br><strong>3. Running:</strong> Currently executing instructions on the CPU.<br><strong>4. Waiting/Blocked:</strong> Waiting for an event (I/O, disk read, network, or a lock). Cannot use the CPU even if it's free.<br><strong>5. Terminated:</strong> Finished execution. OS reclaims resources.<br><br><strong>Key Transitions:</strong><br>\u2014 <em>Running \u2192 Waiting:</em> Process makes an I/O system call.<br>\u2014 <em>Running \u2192 Ready:</em> Preemption (time slice expired).<br>\u2014 <em>Waiting \u2192 Ready:</em> I/O operation completes.",
+      "cross": [
+        "What is the PCB (Process Control Block)? \u2192 Data structure storing process state, PID, program counter, CPU registers, memory limits, and open files."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "What is a Zombie process vs an Orphan process?",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>Zombie Process:</strong> A process that has completed execution (terminated) but still has an entry in the process table. This happens because the parent process has not yet called <code>wait()</code> to read the child's exit status. Zombies consume no CPU or memory, but they consume PIDs. If too many exist, the OS runs out of PIDs.<br><br><strong>Orphan Process:</strong> A child process whose parent has terminated or crashed before the child finished. The OS immediately adopts orphan processes by assigning them to the <code>init</code> process (PID 1) or <code>systemd</code>, which will automatically <code>wait()</code> on them when they die, preventing them from becoming zombies.",
+      "trap": "You cannot 'kill' a zombie process using `kill -9` because it is already dead. You must kill its parent, or attach a debugger to the parent to force it to call `wait()`.",
+      "notes": ""
+    },
+    {
+      "q": "What is a race condition? How do you fix it?",
+      "freq": true,
+      "d": "m",
+      "a": "A <strong>race condition</strong> occurs when multiple threads/processes access shared data concurrently, and the final outcome depends on the exact timing (interleaving) of their execution.<br><br><strong>Example (Lost Update):</strong> Thread A and B both read `balance = 1000`. A adds 500 (1500), B adds 200 (1200). A writes 1500. B writes 1200. Final balance is 1200 instead of 1700. A's write was lost.<br><br><strong>Fixes:</strong><br>1. <strong>Mutex/Locks:</strong> Ensure only one thread enters the 'Critical Section' at a time.<br>2. <strong>Atomic Instructions:</strong> Use hardware-level atomic operations (e.g., Compare-And-Swap) for simple counters.<br>3. <strong>Message Passing:</strong> Avoid shared state entirely (e.g., Go Channels or Actor model).",
+      "cross": [
+        "What is a Data Race vs Race Condition? \u2192 Data Race: Two threads access memory concurrently, at least one writes, no synchronization. Race Condition: Broader logic flaw based on timing (can exist even with locks, e.g., check-then-act bugs)."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "What is the difference between a Mutex and a Semaphore?",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>Mutex (Mutual Exclusion):</strong> A locking mechanism used to protect a critical section. It has <strong>Ownership</strong> \u2014 only the thread that acquired the mutex can release it. If Thread A locks it, Thread B cannot unlock it.<br><br><strong>Semaphore:</strong> A signaling mechanism. It maintains an integer counter (`wait()` decrements, `signal()` increments). It does <strong>NOT have ownership</strong> \u2014 Thread A can wait/decrement, and Thread B can signal/increment. <br>\u2014 <em>Binary Semaphore (0 or 1):</em> Looks like a mutex, but used for signaling (e.g., producer tells consumer data is ready).<br>\u2014 <em>Counting Semaphore:</em> Limits concurrent access to N resources (e.g., a DB connection pool limiting to 10 connections).",
+      "trap": "Never say 'A binary semaphore is exactly the same as a mutex.' The lack of ownership in semaphores makes them suitable for signaling, while mutexes are strictly for locking.",
+      "notes": ""
+    },
+    {
+      "q": "What is a Spinlock? When would you use it over a Mutex?",
+      "freq": true,
+      "d": "h",
+      "a": "A <strong>Spinlock</strong> is a lock where a thread actively 'spins' in a <code>while</code> loop (busy-waiting) repeatedly checking if the lock is available. <br>A <strong>Mutex</strong>, by contrast, puts the waiting thread to sleep (context switch) and wakes it up when the lock is free.<br><br><strong>When to use a Spinlock:</strong><br>Only on <strong>Multi-core systems</strong> when the critical section is extremely short. The time spent spinning (wasting CPU cycles) is actually LESS than the overhead of putting the thread to sleep and waking it back up (context switching).<br><br><strong>When NEVER to use a Spinlock:</strong> On a single-core system. If Thread A holds the lock and is preempted, Thread B will spin forever because Thread A can't run to release the lock until B gives up the CPU.",
+      "cross": [
+        "What is a Read-Write Lock? \u2192 Allows multiple readers to access data simultaneously, but requires exclusive access for a writer. Improves performance in read-heavy workloads."
+      ],
+      "notes": ""
+    },
+    {
+      "q": "Deadlock vs Livelock vs Starvation.",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>Deadlock:</strong> Threads are permanently blocked, waiting for resources held by each other. (e.g., T1 holds Lock A, wants Lock B. T2 holds Lock B, wants Lock A). No progress.<br><br><strong>Livelock:</strong> Threads are actively running but making no progress. They constantly change state in response to each other. (e.g., Two people in a hallway repeatedly stepping to the same side to dodge each other).<br><br><strong>Starvation:</strong> A thread is ready to run but never gets CPU time (or a lock) because the scheduler constantly favors other (usually higher priority) threads. <br><em>Solution to Starvation:</em> <strong>Aging</strong> \u2014 gradually increasing the priority of a thread the longer it waits.",
+      "trap": "Livelock threads consume CPU (busy loop), whereas Deadlocked threads consume 0 CPU (sleeping/blocked).",
+      "notes": ""
+    },
+    {
+      "q": "What are the 4 necessary conditions for Deadlock (Coffman Conditions)?",
+      "freq": true,
+      "d": "h",
+      "a": "For a deadlock to occur, ALL four of these conditions must hold simultaneously:<br><strong>1. Mutual Exclusion:</strong> At least one resource must be non-shareable (only one thread can use it at a time).<br><strong>2. Hold and Wait:</strong> A thread must hold at least one resource and be waiting to acquire additional resources held by other threads.<br><strong>3. No Preemption:</strong> Resources cannot be forcibly taken from a thread; they must be voluntarily released.<br><strong>4. Circular Wait:</strong> A closed chain of threads exists, where each thread is waiting for a resource held by the next thread in the chain.<br><br><strong>How to prevent deadlock?</strong> Break just ONE of these conditions. The easiest to break is Circular Wait (by forcing all threads to acquire locks in a strict, global alphabetical order).",
+      "notes": ""
+    },
+    {
+      "q": "Explain the Banker's Algorithm.",
+      "freq": false,
+      "d": "h",
+      "a": "The <strong>Banker's Algorithm</strong> is a deadlock <em>avoidance</em> algorithm. <br>Before granting a resource to a process, the OS simulates the allocation to see if it leads to an <strong>Unsafe State</strong> (a state where a sequence of allocations could lead to deadlock).<br><br><strong>How it works:</strong><br>1. Every process must declare its Maximum Claim (maximum resources it will ever need) upfront.<br>2. When a request is made, the OS checks: <em>If I grant this, is there at least one sequence of execution where all processes can finish?</em><br>3. If Yes (Safe State), grant the request. If No (Unsafe State), the process must wait.<br><br><em>Why is it rarely used?</em> Because processes rarely know their maximum resource requirements upfront in modern computing.",
+      "notes": ""
+    },
+    {
+      "q": "What is Priority Inversion? How is it solved?",
+      "freq": true,
+      "d": "h",
+      "a": "<strong>Priority Inversion</strong> is a bug where a high-priority task is indirectly preempted by a lower-priority task.<br><strong>Scenario:</strong> <br>1. Low-priority task (L) locks Mutex M.<br>2. High-priority task (H) wakes up, needs Mutex M, so it blocks waiting for L.<br>3. A Medium-priority task (M) wakes up. Since it doesn't need M, it preempts L and runs.<br>Result: Task H (highest) is stuck waiting for M (medium) to finish, which defeats the priority system. (This crashed the Mars Pathfinder in 1997).<br><br><strong>Solution: Priority Inheritance.</strong> <br>When H blocks on a lock held by L, the OS temporarily elevates L's priority to match H. This prevents M from preempting L, allowing L to finish quickly, release the lock, and give control to H.",
+      "notes": ""
+    },
+    {
+      "q": "Explain CPU Scheduling Algorithms (FCFS, SJF, RR, MLFQ).",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>FCFS (First Come First Serve):</strong> Simple FIFO. Problem: <em>Convoy Effect</em> \u2014 one long CPU-bound process blocks many short I/O-bound processes.<br><strong>SJF (Shortest Job First):</strong> Picks the process with the shortest execution time. Optimal for minimizing average waiting time, but impossible to implement purely because OS can't predict exact burst times. Can cause Starvation for long jobs.<br><strong>RR (Round Robin):</strong> Every process gets a fixed time slice (Quantum). If it doesn't finish, it gets preempted. Fair, good for time-sharing systems. High context-switch overhead if quantum is too small.<br><strong>MLFQ (Multi-Level Feedback Queue):</strong> The standard for modern OS. Multiple queues with different priorities and quantums. <br>\u2014 New jobs start at the top priority.<br>\u2014 If a job uses its whole time slice (CPU-bound), it gets demoted to a lower priority queue.<br>\u2014 If it yields early for I/O, it stays at the top. <br>Favorizes interactive I/O jobs while giving long background tasks CPU time when free.",
+      "notes": ""
+    },
+    {
+      "q": "User Mode vs Kernel Mode. How does a System Call work?",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>User Mode:</strong> Restricted execution. Code cannot directly access hardware, memory outside its address space, or I/O devices.<br><strong>Kernel Mode:</strong> Ring 0. Full access to all hardware and memory. The OS core runs here.<br><br><strong>System Call (Syscall):</strong> The bridge between them. When a user program needs to read a file (`read()`), it cannot do it directly. <br>1. Program sets up arguments in CPU registers and executes a software interrupt (a `trap` instruction).<br>2. CPU switches to Kernel Mode and jumps to the OS's pre-defined Interrupt Vector Table.<br>3. The OS safely executes the hardware request.<br>4. OS returns the result, CPU switches back to User Mode, and the program resumes.<br>Context switching between User/Kernel mode is expensive.",
+      "notes": ""
+    },
+    {
+      "q": "What is the difference between a System Call and a Library Function?",
+      "freq": false,
+      "d": "e",
+      "a": "<strong>System Call:</strong> A direct request to the OS kernel (e.g., `write()`, `read()`, `fork()`). Involves a mode switch (User to Kernel) which is slow.<br><strong>Library Function:</strong> A wrapper provided by a language standard library (e.g., C's `printf()`, `fopen()`). <br>Many library functions <em>use</em> system calls internally, but they add optimizations. For example, `printf()` buffers your text in user-space memory and only triggers the expensive `write()` system call when a newline (`\\n`) is reached or the buffer is full.",
+      "notes": ""
+    },
+    {
+      "q": "What is Virtual Memory? Why do we use it?",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>Virtual Memory</strong> is an abstraction that gives each process the illusion of having a large, contiguous, private memory space, independent of actual physical RAM.<br><br><strong>Benefits:</strong><br>1. <strong>Isolation/Security:</strong> Process A cannot read/write Process B's memory because their virtual addresses map to completely different physical addresses.<br>2. <strong>Larger than RAM:</strong> Programs can use more memory than physical RAM by swapping unused pages to the Disk (Paging).<br>3. <strong>Shared Memory:</strong> OS can map the virtual pages of two processes to the same physical page (useful for shared libraries like `libc` or IPC).<br>4. <strong>Contiguous Illusion:</strong> A process sees a clean block of memory, even if it is fragmented and scattered across physical RAM.",
+      "notes": ""
+    },
+    {
+      "q": "Paging vs Segmentation.",
+      "freq": true,
+      "d": "h",
+      "a": "<strong>Paging:</strong> Divides virtual memory into fixed-size <strong>Pages</strong> and physical memory into fixed-size <strong>Frames</strong> (usually 4KB). The OS maintains a Page Table to map pages to frames.<br>\u2014 Solves External Fragmentation completely.<br>\u2014 Suffers from Internal Fragmentation (if a process needs 5KB, it gets two 4KB pages; 3KB is wasted).<br><br><strong>Segmentation:</strong> Divides memory into logical, variable-sized units (Segments) based on program structure (e.g., Code segment, Stack segment, Heap segment). <br>\u2014 No Internal Fragmentation.<br>\u2014 Suffers heavily from External Fragmentation (gaps form in memory as segments are swapped in and out).<br><br><strong>Modern OS:</strong> Almost exclusively use Paging. Segmentation exists primarily in legacy x86 hardware architecture.",
+      "notes": ""
+    },
+    {
+      "q": "What is a Translation Lookaside Buffer (TLB)?",
+      "freq": true,
+      "d": "h",
+      "a": "The <strong>TLB</strong> is a specialized, extremely fast hardware cache inside the CPU's Memory Management Unit (MMU).<br><br>In Virtual Memory, every memory access requires reading the Page Table (which lives in RAM) to translate the Virtual Address to a Physical Address. This means every memory lookup takes TWO trips to RAM. This is too slow.<br><br>The TLB caches recent Virtual-to-Physical translations. <br>\u2014 <strong>TLB Hit:</strong> CPU finds the translation in the TLB. Fast (1 CPU cycle).<br>\u2014 <strong>TLB Miss:</strong> CPU must walk the Page Table in RAM. Slow (100+ cycles).<br>When a context switch occurs between processes, the TLB must be flushed because the new process has a different Page Table.",
+      "trap": "Threads of the same process share the same Page Table. Therefore, switching between threads does NOT require a TLB flush, making thread switching significantly faster than process switching.",
+      "notes": ""
+    },
+    {
+      "q": "Why do modern Operating Systems use Multi-Level Page Tables?",
+      "freq": false,
+      "d": "h",
+      "a": "A Page Table maps virtual pages to physical frames. In a 32-bit system with 4KB pages, a single-level page table requires 1 million entries per process. At 4 bytes per entry, that's 4MB of contiguous RAM <em>just for the page table</em> per process. On a 64-bit system, a flat page table is impossibly large.<br><br><strong>Multi-Level Page Tables</strong> solve this by creating a tree structure (e.g., Page Directory -> Page Table -> Frame). <br>Because most processes only use a tiny fraction of their massive virtual address space (e.g., Code at the bottom, Stack at the top, huge empty space in the middle), the OS only allocates the 'leaf' tables for memory regions that are actually in use. This saves massive amounts of memory.",
+      "notes": ""
+    },
+    {
+      "q": "What is Thrashing? How is it resolved?",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>Thrashing</strong> occurs when a system doesn't have enough physical RAM to hold the 'Working Sets' (actively used pages) of all running processes.<br>The OS constantly evicts a page to disk, only for another process to immediately require it. The system spends nearly 100% of its time swapping pages in and out of the disk (Page Faults) and 0% of its time executing actual CPU instructions. The system freezes.<br><br><strong>Detection:</strong> High disk I/O, High page fault rate, Near-zero CPU utilization.<br><strong>Solution:</strong> <br>1. Buy more RAM.<br>2. Decrease the degree of multiprogramming (kill or suspend some processes).<br>3. Adjust the Working Set model to ensure a process is only scheduled if its entire working set fits in RAM.",
+      "notes": ""
+    },
+    {
+      "q": "Explain Page Replacement Algorithms. What is Belady's Anomaly?",
+      "freq": true,
+      "d": "h",
+      "a": "When physical RAM is full, the OS must evict a page to load a new one.<br>\u2014 <strong>FIFO:</strong> Evicts the oldest page. Bad because the oldest page might be heavily used.<br>\u2014 <strong>LRU (Least Recently Used):</strong> Evicts the page not accessed for the longest time. Great performance, but expensive to implement purely (requires timestamping every memory access).<br>\u2014 <strong>Clock (Second Chance):</strong> An efficient approximation of LRU. Uses a 'reference bit' set to 1 when accessed. A clock hand sweeps through; if bit is 1, it sets it to 0 (gives a second chance). If 0, it evicts it.<br><br><strong>Belady's Anomaly:</strong> A counter-intuitive phenomenon found in FIFO where increasing the amount of physical RAM actually <em>increases</em> the number of page faults. LRU and Optimal algorithms do not suffer from this.",
+      "notes": ""
+    },
+    {
+      "q": "Explain Demand Paging and Copy-on-Write (CoW).",
+      "freq": true,
+      "d": "h",
+      "a": "<strong>Demand Paging:</strong> When a process starts, the OS doesn't load its entire executable into RAM. It loads zero pages. The CPU immediately triggers a Page Fault, and the OS loads only the required page from disk. Pages are loaded entirely 'on demand'.<br><br><strong>Copy-on-Write (CoW):</strong> When a process calls `fork()`, the OS does NOT copy the parent's memory. Instead, both parent and child pointers point to the exact same physical memory pages, marked as <em>Read-Only</em>. <br>If either process tries to Write/Modify the memory, the CPU triggers a protection fault. The OS steps in, copies that specific page, updates the mapping, and allows the write. This makes `fork()` extremely fast.",
+      "notes": ""
+    },
+    {
+      "q": "What is Context Switching? What is the cost?",
+      "freq": true,
+      "d": "m",
+      "a": "<strong>Context Switch:</strong> The process of saving the state (context) of the currently running process/thread and loading the state of the next one to run.<br><strong>Saved Data:</strong> CPU Registers, Program Counter, Stack Pointer, and Memory management info (Page Table pointers) saved into the PCB.<br><br><strong>Costs:</strong><br>1. <strong>Direct Cost:</strong> CPU time spent executing the OS scheduler instead of user code (microseconds).<br>2. <strong>Indirect Cost (Massive):</strong> <em>Cache Pollution.</em> The incoming process has a different memory working set. The L1/L2/L3 CPU caches are full of the old process's data, causing massive Cache Misses until the caches warm up. Also requires a TLB Flush (for processes, not threads).",
+      "notes": ""
+    },
+    {
+      "q": "What is an Inode in Unix/Linux?",
+      "freq": true,
+      "d": "m",
+      "a": "An <strong>Inode (Index Node)</strong> is a data structure in a Unix filesystem that describes a file or directory. <br><strong>Contains Metadata:</strong> File size, owner ID, permissions (rwx), timestamps (creation, modification, access), and pointers to the actual data blocks on the disk.<br><strong>Does NOT contain:</strong> The file's name. The filename is stored in the Directory file, mapping the name to an Inode number.<br><br>Because filenames and inodes are separate, you can have multiple filenames pointing to the exact same Inode (This is what a <strong>Hard Link</strong> is). If you delete a file, you are just removing the directory entry. The inode and data are only deleted when the hard link count drops to zero.",
+      "trap": "Running out of disk space isn't the only way a disk can be 'full'. If you create millions of tiny 1-byte files, you can run out of Inodes, making it impossible to create new files even if there are gigabytes of free space.",
+      "notes": ""
+    },
+    {
+      "q": "Hard Link vs Soft (Symbolic) Link.",
+      "freq": true,
+      "d": "e",
+      "a": "<strong>Hard Link:</strong> A new directory entry that points to the exact same Inode as the original file. They are indistinguishable from the original file. If the original is deleted, the data persists via the hard link. Cannot link directories (prevents loops) and cannot cross file systems.<br><br><strong>Soft Link (Symlink):</strong> A completely new file (with its own Inode) whose data is simply the string path pointing to another file (like a Windows Shortcut). If the original file is deleted, the symlink becomes 'dangling' or broken. Can point to directories and can cross file systems.",
+      "notes": ""
+    },
+    {
+      "q": "What is a File Descriptor? Explain the OS file tables.",
+      "freq": true,
+      "d": "h",
+      "a": "A <strong>File Descriptor (FD)</strong> is a non-negative integer returned by the OS when a process opens a file, socket, or pipe (e.g., 0=STDIN, 1=STDOUT, 2=STDERR).<br><br>It involves three levels of indirection:<br>1. <strong>Per-Process FD Table:</strong> Lives in the PCB. Maps the integer FD to an entry in the system-wide table.<br>2. <strong>System-Wide Open File Table:</strong> Maintained by the kernel. Keeps track of the file offset (where you are reading/writing) and access mode (read/write). This allows two different processes to read the same file independently without messing up each other's offsets.<br>3. <strong>Inode Table:</strong> Points to the actual file metadata and disk blocks.<br><br>When you `fork()`, the child inherits the parent's FDs, pointing to the <em>same</em> System-Wide table entry. This is why parent and child share the file offset (reading from a pipe).",
+      "notes": ""
+    },
+    {
+      "q": "What is a Journaling File System (e.g., Ext4, NTFS)?",
+      "freq": false,
+      "d": "m",
+      "a": "A <strong>Journaling File System</strong> prevents data corruption during unexpected power losses or system crashes.<br><br>In older filesystems (FAT32), writing a file required multiple steps: allocating blocks, writing data, updating the inode, updating the directory. If power failed mid-way, the filesystem was left in an inconsistent, corrupted state.<br><br><strong>Journaling:</strong> Before the OS modifies the actual filesystem, it writes a log (the Journal) of what it intends to do. It then executes the changes. If power fails mid-write, upon reboot, the OS reads the Journal, sees an incomplete transaction, and either finishes it or rolls it back completely. Guarantees structural consistency.",
+      "notes": ""
+    },
+    {
+      "q": "Explain IPC Mechanisms (Pipes, Message Queues, Shared Memory, Sockets).",
+      "freq": true,
+      "d": "m",
+      "a": "Processes have isolated memory, requiring <strong>Inter-Process Communication (IPC)</strong> to talk.<br>1. <strong>Pipes:</strong> Unidirectional byte stream. Ordinary pipes only work between parent-child processes. Named Pipes (FIFOs) work between unrelated processes.<br>2. <strong>Message Queues:</strong> OS-managed queues where processes send discrete, structured messages. Non-blocking.<br>3. <strong>Shared Memory:</strong> The OS maps the same physical memory frame into the virtual address space of two processes. <em>The fastest IPC</em> because it skips kernel copying. Requires Mutexes to prevent race conditions.<br>4. <strong>Sockets:</strong> Standard for network communication, but Unix Domain Sockets allow very fast, reliable bidirectional IPC on the same machine.",
+      "notes": ""
+    },
+    {
+      "q": "Polling vs Interrupts vs DMA.",
+      "freq": false,
+      "d": "m",
+      "a": "How the CPU interacts with slow I/O devices (like disks/network cards):<br>1. <strong>Polling (Busy Waiting):</strong> The CPU constantly asks the device 'Are you done yet?'. Wastes massive amounts of CPU cycles.<br>2. <strong>Interrupts:</strong> The CPU issues a command to the device and goes to sleep or works on another process. When the device finishes, it sends a hardware electrical signal (Interrupt) to the CPU. The CPU pauses, runs the Interrupt Handler, and resumes.<br>3. <strong>DMA (Direct Memory Access):</strong> For massive data transfers (like reading a 1GB file). Instead of the CPU reading byte-by-byte via interrupts, the CPU tells a specialized chip (DMA Controller) 'Copy disk blocks to RAM address X'. The DMA does all the work bypassing the CPU. It only sends ONE interrupt when the entire transfer is finished. Massively improves performance.",
+      "notes": ""
+    },
+    {
+      "q": "What is memory-mapped file I/O (mmap)?",
+      "freq": false,
+      "d": "h",
+      "a": "<strong><code>mmap()</code></strong> is a system call that maps a file directly into a process's Virtual Address Space.<br><br>Instead of using standard `read()` and `write()` system calls (which copy data from disk to kernel buffers, and then kernel buffers to user-space buffers), `mmap` makes the file look like an array in memory.<br>When you read the array, the OS handles Page Faults to load the file data into RAM. When you alter the array, the OS seamlessly flushes the dirty memory pages back to the disk in the background.<br><br><strong>Benefits:</strong> Zero-copy memory manipulation, extremely fast file access (used extensively by Databases), and allows multiple processes to map the same file for fast Shared Memory IPC.",
+      "notes": ""
+    },
+    {
+      "q": "What happens when you press the power button on a computer? (Boot Process)",
+      "freq": false,
+      "d": "m",
+      "a": "1. <strong>POST (Power-On Self Test):</strong> Hardware verifies RAM, CPU, and devices are functioning.<br>2. <strong>BIOS/UEFI:</strong> Firmware stored on a motherboard chip wakes up, initializes hardware, and finds the bootable disk.<br>3. <strong>Bootloader (GRUB):</strong> BIOS loads the Master Boot Record (MBR) or EFI partition. The Bootloader's job is to locate the OS Kernel on the disk and load it into RAM.<br>4. <strong>Kernel Initialization:</strong> The Kernel takes over, initializes memory management, CPU scheduling, and mounts the root File System.<br>5. <strong>Init Process:</strong> The Kernel spawns the very first user-space process (PID 1, usually `systemd` or `init`).<br>6. <strong>System Services:</strong> `systemd` starts network services, daemons, and finally the GUI/Login screen.",
+      "notes": ""
+    },
+    {
+      "q": "What is an internal vs external interrupt?",
+      "freq": false,
+      "d": "e",
+      "a": "<strong>Hardware (External) Interrupt:</strong> Asynchronous. Generated by external hardware devices (e.g., keyboard press, network packet arrived, disk read finished, or a hardware timer). Can happen at any point in CPU execution.<br><br><strong>Software (Internal) Interrupt / Trap:</strong> Synchronous. Generated by the CPU executing a specific instruction. Used for System Calls (program intentionally asking the OS for a service) or generated by Exceptions (divide by zero, invalid memory access/segfault, page faults).",
+      "notes": ""
+    }
+  ]
+}
