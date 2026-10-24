@@ -1,0 +1,4 @@
+# Optional local teaching dependencies; not frontend runtime dependencies.
+# Tested with Python 3.14.7. Only the two framework integration lessons need these.
+langchain-core==1.6.12
+langgraph==1.2.16

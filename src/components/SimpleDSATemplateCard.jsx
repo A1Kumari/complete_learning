@@ -12,8 +12,6 @@ const SimpleDSATemplateCard = ({ template, onStatusUpdate }) => {
     return colors[status];
   };
 
-  const statusColor = getStatusColor(template.status);
-
   return (
     <div className="simple-dsa-card">
       <div className="simple-card-header" onClick={() => setShowAnswer(!showAnswer)}>
@@ -34,7 +32,7 @@ const SimpleDSATemplateCard = ({ template, onStatusUpdate }) => {
         <div className="simple-card-body">
           <div style={{ marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid #eee' }}>
             <p style={{ margin: 0, fontSize: '0.9rem', color: '#333', lineHeight: '1.5' }}>
-              {template.problemStatement}
+              {template.problemStatement || template.example}
             </p>
           </div>
 

@@ -1,0 +1,3 @@
+# Optional local environment for the published teaching examples; not app dependencies.
+numpy==2.3.5
+pydantic==2.13.4

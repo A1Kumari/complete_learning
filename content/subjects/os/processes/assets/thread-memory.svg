@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" role="img" aria-labelledby="title desc">
+  <title id="title">Resources shared by threads inside a process</title>
+  <desc id="desc">One process contains shared code, heap and open resources, plus two threads with separate stacks, registers and program counters.</desc>
+  <rect x="5" y="5" width="470" height="470" rx="16" fill="#fafaf9" stroke="#777"/>
+  <text x="25" y="40" font-family="sans-serif" font-size="22" fill="#1a1a18">One process / shared address space</text>
+  <rect x="25" y="60" width="430" height="75" rx="8" fill="#e6f1fb"/>
+  <text x="45" y="90" font-family="sans-serif" font-size="20" fill="#1a1a18">Shared code, heap,</text>
+  <text x="45" y="118" font-family="sans-serif" font-size="20" fill="#1a1a18">and open resources</text>
+  <rect x="25" y="160" width="430" height="125" rx="8" fill="#eaf3de"/>
+  <text x="45" y="193" font-family="sans-serif" font-size="22" fill="#1a1a18">Thread A</text>
+  <text x="45" y="225" font-family="sans-serif" font-size="18" fill="#333">Own stack, registers, program counter,</text>
+  <text x="45" y="254" font-family="sans-serif" font-size="18" fill="#333">and thread-local state</text>
+  <rect x="25" y="310" width="430" height="125" rx="8" fill="#eeedfe"/>
+  <text x="45" y="343" font-family="sans-serif" font-size="22" fill="#1a1a18">Thread B</text>
+  <text x="45" y="375" font-family="sans-serif" font-size="18" fill="#333">Own stack, registers, program counter,</text>
+  <text x="45" y="404" font-family="sans-serif" font-size="18" fill="#333">and thread-local state</text>
+</svg>

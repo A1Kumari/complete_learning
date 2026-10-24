@@ -1,0 +1,38 @@
+[
+  {
+    "id": "os-q001",
+    "subjectId": "os",
+    "order": 1,
+    "q": "What is the difference between a process and a thread? Why are threads called lightweight?",
+    "freq": true,
+    "d": "m",
+    "a": "<strong>Process:</strong> An independent program in execution. Has its own virtual address space (code, data, heap, stack) and OS resources (file descriptors). Creating a process via <code>fork()</code> is expensive because it copies the memory space (mitigated by Copy-on-Write).<br><br><strong>Thread:</strong> A unit of execution within a process. Threads of the same process share the code, data, heap, and file descriptors. A thread only has its own: stack, registers, program counter, and thread-local storage.<br><br><strong>Why lightweight:</strong><br>— Creation doesn't require allocating a new virtual memory space.<br>— Context switching is faster (no need to flush the TLB / swap page tables).<br>— Communication is fast via shared memory (no IPC overhead).<br><br><strong>Danger:</strong> Shared memory leads to race conditions. One thread crashing (e.g., Segfault) brings down the entire process.",
+    "cross": [
+      "If threads share heap memory, what happens when one thread calls free() on a pointer another thread is using? → Dangling pointer, undefined behavior, likely a crash.",
+      "User-level vs Kernel-level threads? → User-level: Managed by runtime (e.g., Go Goroutines), OS sees 1 thread. Kernel-level: OS schedules them natively."
+    ],
+    "trap": "Don't just say 'processes don't share memory'. They CAN via explicit IPC (shared memory segments). The key is that threads share memory <em>by default</em>."
+  },
+  {
+    "id": "os-q002",
+    "subjectId": "os",
+    "order": 2,
+    "q": "Explain the process lifecycle — all states and transitions.",
+    "freq": true,
+    "d": "e",
+    "a": "A process passes through these states:<br><strong>1. New:</strong> Being created (OS allocating PCB and memory).<br><strong>2. Ready:</strong> Loaded in memory, waiting in the ready queue to be assigned CPU time.<br><strong>3. Running:</strong> Currently executing instructions on the CPU.<br><strong>4. Waiting/Blocked:</strong> Waiting for an event (I/O, disk read, network, or a lock). Cannot use the CPU even if it's free.<br><strong>5. Terminated:</strong> Finished execution. OS reclaims resources.<br><br><strong>Key Transitions:</strong><br>— <em>Running → Waiting:</em> Process makes an I/O system call.<br>— <em>Running → Ready:</em> Preemption (time slice expired).<br>— <em>Waiting → Ready:</em> I/O operation completes.",
+    "cross": [
+      "What is the PCB (Process Control Block)? → Data structure storing process state, PID, program counter, CPU registers, memory limits, and open files."
+    ]
+  },
+  {
+    "id": "os-q003",
+    "subjectId": "os",
+    "order": 3,
+    "q": "What is a Zombie process vs an Orphan process?",
+    "freq": true,
+    "d": "m",
+    "a": "<strong>Zombie Process:</strong> A process that has completed execution (terminated) but still has an entry in the process table. This happens because the parent process has not yet called <code>wait()</code> to read the child's exit status. Zombies consume no CPU or memory, but they consume PIDs. If too many exist, the OS runs out of PIDs.<br><br><strong>Orphan Process:</strong> A child process whose parent has terminated or crashed before the child finished. The OS immediately adopts orphan processes by assigning them to the <code>init</code> process (PID 1) or <code>systemd</code>, which will automatically <code>wait()</code> on them when they die, preventing them from becoming zombies.",
+    "trap": "You cannot 'kill' a zombie process using `kill -9` because it is already dead. You must kill its parent, or attach a debugger to the parent to force it to call `wait()`."
+  }
+]

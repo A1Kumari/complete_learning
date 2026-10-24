@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "learning-document",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "kind", "topicId", "status", "revision", "order"],
+  "properties": {
+    "id": { "$ref": "#/definitions/id" },
+    "kind": { "enum": ["lesson", "question"] },
+    "topicId": { "$ref": "#/definitions/id" },
+    "status": { "enum": ["draft", "published"] },
+    "revision": { "type": "integer", "minimum": 1 },
+    "order": { "type": "integer", "minimum": 0 },
+    "title": { "$ref": "#/definitions/text" },
+    "summary": { "$ref": "#/definitions/text" },
+    "prompt": { "$ref": "#/definitions/text" },
+    "lessonId": { "$ref": "#/definitions/id" },
+    "difficulty": { "enum": ["easy", "medium", "hard"] },
+    "frequent": { "type": "boolean" },
+    "tags": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" } },
+    "conceptIds": { "$ref": "#/definitions/ids" },
+    "prerequisiteIds": { "$ref": "#/definitions/ids" },
+    "relatedIds": { "$ref": "#/definitions/ids" },
+    "followUps": { "type": "array", "items": { "$ref": "#/definitions/text" } },
+    "misconception": { "$ref": "#/definitions/text" },
+    "anchors": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/definitions/id" },
+      "additionalProperties": { "$ref": "#/definitions/text" }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "kind": { "const": "lesson" } } },
+      "then": {
+        "required": ["title", "summary"],
+        "not": { "anyOf": [{ "required": ["prompt"] }, { "required": ["lessonId"] }, { "required": ["followUps"] }, { "required": ["misconception"] }, { "required": ["frequent"] }] }
+      },
+      "else": {
+        "required": ["prompt", "difficulty"],
+        "not": { "anyOf": [{ "required": ["title"] }, { "required": ["summary"] }, { "required": ["prerequisiteIds"] }] }
+      }
+    }
+  ],
+  "definitions": {
+    "id": { "type": "string", "pattern": "^(?!custom-)(?!constructor$)(?!prototype$)[a-z][a-z0-9_-]{0,199}$" },
+    "text": { "type": "string", "minLength": 1, "pattern": "\\S" },
+    "ids": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/definitions/id" } }
+  }
+}

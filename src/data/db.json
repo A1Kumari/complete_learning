@@ -5,6 +5,7 @@
   "bg": "#FAEEDA",
   "questions": [
     {
+      "id": "db-q001",
       "q": "What is a DBMS? What are its advantages over a traditional file-based system?",
       "freq": true,
       "d": "e",
@@ -16,6 +17,7 @@
       "notes": ""
     },
     {
+      "id": "db-q002",
       "q": "Explain the three-level architecture of DBMS and Data Independence.",
       "freq": false,
       "d": "m",
@@ -23,6 +25,7 @@
       "notes": ""
     },
     {
+      "id": "db-q003",
       "q": "What are ACID properties? Explain each with examples.",
       "freq": true,
       "d": "h",
@@ -34,6 +37,7 @@
       "notes": ""
     },
     {
+      "id": "db-q004",
       "q": "Explain different types of keys in a relational database.",
       "freq": true,
       "d": "e",
@@ -45,6 +49,7 @@
       "notes": ""
     },
     {
+      "id": "db-q005",
       "q": "What is an Entity-Relationship (ER) model? Explain Strong vs Weak entities.",
       "freq": false,
       "d": "m",
@@ -52,6 +57,7 @@
       "notes": ""
     },
     {
+      "id": "db-q006",
       "q": "Explain the different types of table relationships (1:1, 1:N, M:N).",
       "freq": true,
       "d": "e",
@@ -63,6 +69,7 @@
       "notes": ""
     },
     {
+      "id": "db-q007",
       "q": "What are DDL, DML, DCL, and TCL?",
       "freq": true,
       "d": "e",
@@ -73,6 +80,7 @@
       "notes": ""
     },
     {
+      "id": "db-q008",
       "q": "What is Normalization? Explain Functional Dependency and Anomalies.",
       "freq": true,
       "d": "m",
@@ -80,6 +88,7 @@
       "notes": ""
     },
     {
+      "id": "db-q009",
       "q": "Explain 1NF, 2NF, 3NF, and BCNF.",
       "freq": true,
       "d": "h",
@@ -91,6 +100,7 @@
       "notes": ""
     },
     {
+      "id": "db-q010",
       "q": "What is the difference between DELETE, TRUNCATE, and DROP?",
       "freq": true,
       "d": "e",
@@ -99,6 +109,7 @@
       "notes": ""
     },
     {
+      "id": "db-q011",
       "q": "Explain the logical execution order of a SQL query.",
       "freq": true,
       "d": "m",
@@ -109,6 +120,7 @@
       "notes": ""
     },
     {
+      "id": "db-q012",
       "q": "What is the difference between WHERE and HAVING?",
       "freq": true,
       "d": "e",
@@ -116,6 +128,7 @@
       "notes": ""
     },
     {
+      "id": "db-q013",
       "q": "Explain the different types of Joins in SQL.",
       "freq": true,
       "d": "e",
@@ -124,6 +137,7 @@
       "notes": ""
     },
     {
+      "id": "db-q014",
       "q": "What is an Anti-Join and a Semi-Join?",
       "freq": false,
       "d": "m",
@@ -131,6 +145,7 @@
       "notes": ""
     },
     {
+      "id": "db-q015",
       "q": "What is the difference between UNION and UNION ALL?",
       "freq": true,
       "d": "e",
@@ -141,6 +156,7 @@
       "notes": ""
     },
     {
+      "id": "db-q016",
       "q": "Explain Subqueries vs Correlated Subqueries.",
       "freq": true,
       "d": "m",
@@ -148,6 +164,7 @@
       "notes": ""
     },
     {
+      "id": "db-q017",
       "q": "What is the difference between IN and EXISTS?",
       "freq": true,
       "d": "m",
@@ -156,6 +173,7 @@
       "notes": ""
     },
     {
+      "id": "db-q018",
       "q": "Explain Window Functions in SQL. What is the OVER() clause?",
       "freq": true,
       "d": "h",
@@ -164,6 +182,7 @@
       "notes": ""
     },
     {
+      "id": "db-q019",
       "q": "What is the difference between ROW_NUMBER(), RANK(), and DENSE_RANK()?",
       "freq": true,
       "d": "m",
@@ -174,6 +193,7 @@
       "notes": ""
     },
     {
+      "id": "db-q020",
       "q": "Explain LEAD() and LAG() functions.",
       "freq": true,
       "d": "m",
@@ -181,6 +201,7 @@
       "notes": ""
     },
     {
+      "id": "db-q021",
       "q": "What is a CTE (Common Table Expression) and a Recursive CTE?",
       "freq": true,
       "d": "h",
@@ -189,6 +210,7 @@
       "notes": ""
     },
     {
+      "id": "db-q022",
       "q": "Explain the difference between a View and a Materialized View.",
       "freq": true,
       "d": "m",
@@ -199,6 +221,7 @@
       "notes": ""
     },
     {
+      "id": "db-q023",
       "q": "What is a Trigger in SQL?",
       "freq": false,
       "d": "m",
@@ -207,6 +230,7 @@
       "notes": ""
     },
     {
+      "id": "db-q024",
       "q": "What is the difference between a Stored Procedure and a User-Defined Function (UDF)?",
       "freq": true,
       "d": "m",
@@ -214,6 +238,7 @@
       "notes": ""
     },
     {
+      "id": "db-q025",
       "q": "How does NULL behave in SQL? Explain COALESCE and NULLIF.",
       "freq": true,
       "d": "e",
@@ -222,6 +247,7 @@
       "notes": ""
     },
     {
+      "id": "db-q026",
       "q": "What are Transaction States in DBMS?",
       "freq": false,
       "d": "e",
@@ -229,6 +255,7 @@
       "notes": ""
     },
     {
+      "id": "db-q027",
       "q": "Explain the Concurrency Control Problems: Dirty Read, Non-Repeatable Read, and Phantom Read.",
       "freq": true,
       "d": "h",
@@ -239,6 +266,7 @@
       "notes": ""
     },
     {
+      "id": "db-q028",
       "q": "Explain Transaction Isolation Levels.",
       "freq": true,
       "d": "h",
@@ -247,6 +275,7 @@
       "notes": ""
     },
     {
+      "id": "db-q029",
       "q": "What are Database Locks? Shared vs Exclusive.",
       "freq": true,
       "d": "m",
@@ -257,6 +286,7 @@
       "notes": ""
     },
     {
+      "id": "db-q030",
       "q": "What is the Two-Phase Locking (2PL) Protocol?",
       "freq": false,
       "d": "h",
@@ -264,6 +294,7 @@
       "notes": ""
     },
     {
+      "id": "db-q031",
       "q": "What is a Deadlock? How is it handled in a DBMS?",
       "freq": true,
       "d": "m",
@@ -271,6 +302,7 @@
       "notes": ""
     },
     {
+      "id": "db-q032",
       "q": "What is MVCC (Multi-Version Concurrency Control)?",
       "freq": true,
       "d": "h",
@@ -279,6 +311,7 @@
       "notes": ""
     },
     {
+      "id": "db-q033",
       "q": "What is Indexing? How does it speed up queries?",
       "freq": true,
       "d": "e",
@@ -287,6 +320,7 @@
       "notes": ""
     },
     {
+      "id": "db-q034",
       "q": "Explain Clustered vs Non-Clustered Indexes.",
       "freq": true,
       "d": "h",
@@ -297,6 +331,7 @@
       "notes": ""
     },
     {
+      "id": "db-q035",
       "q": "Why do Databases use B+ Trees instead of B-Trees or Binary Trees for indexing?",
       "freq": true,
       "d": "h",
@@ -305,6 +340,7 @@
       "notes": ""
     },
     {
+      "id": "db-q036",
       "q": "What is a Composite Index? Explain the Leftmost Prefix Rule.",
       "freq": true,
       "d": "h",
@@ -313,6 +349,7 @@
       "notes": ""
     },
     {
+      "id": "db-q037",
       "q": "Hash Index vs B+ Tree Index. When to use which?",
       "freq": false,
       "d": "m",
@@ -320,6 +357,7 @@
       "notes": ""
     },
     {
+      "id": "db-q038",
       "q": "How do you Optimize a slow SQL query?",
       "freq": true,
       "d": "h",
@@ -330,6 +368,7 @@
       "notes": ""
     },
     {
+      "id": "db-q039",
       "q": "What is Database Partitioning? Vertical vs Horizontal.",
       "freq": true,
       "d": "m",
@@ -338,6 +377,7 @@
       "notes": ""
     },
     {
+      "id": "db-q040",
       "q": "What is Database Sharding?",
       "freq": true,
       "d": "h",
@@ -345,6 +385,7 @@
       "notes": ""
     },
     {
+      "id": "db-q041",
       "q": "Explain Database Replication (Master-Slave vs Master-Master).",
       "freq": true,
       "d": "h",
@@ -352,6 +393,7 @@
       "notes": ""
     },
     {
+      "id": "db-q042",
       "q": "What is the CAP Theorem?",
       "freq": true,
       "d": "h",
@@ -360,6 +402,7 @@
       "notes": ""
     },
     {
+      "id": "db-q043",
       "q": "Relational (SQL) vs Non-Relational (NoSQL) Databases. When to choose what?",
       "freq": true,
       "d": "m",
@@ -370,6 +413,7 @@
       "notes": ""
     },
     {
+      "id": "db-q044",
       "q": "What are the different types of NoSQL databases?",
       "freq": false,
       "d": "m",
@@ -377,6 +421,7 @@
       "notes": ""
     },
     {
+      "id": "db-q045",
       "q": "What is a Connection Pool?",
       "freq": false,
       "d": "m",
@@ -384,6 +429,7 @@
       "notes": ""
     },
     {
+      "id": "db-q046",
       "q": "What is the N+1 Query Problem?",
       "freq": true,
       "d": "h",
@@ -391,6 +437,7 @@
       "notes": ""
     },
     {
+      "id": "db-q047",
       "q": "What is a Cursor in SQL?",
       "freq": false,
       "d": "m",
@@ -398,6 +445,7 @@
       "notes": ""
     },
     {
+      "id": "db-q048",
       "q": "Explain Database Backup strategies (Full, Differential, Incremental).",
       "freq": false,
       "d": "m",
@@ -405,6 +453,7 @@
       "notes": ""
     },
     {
+      "id": "db-q049",
       "q": "What is Schema-on-Read vs Schema-on-Write?",
       "freq": false,
       "d": "m",
@@ -412,6 +461,7 @@
       "notes": ""
     },
     {
+      "id": "db-q050",
       "q": "Explain the concepts of OLTP vs OLAP.",
       "freq": true,
       "d": "e",

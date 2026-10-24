@@ -5,7 +5,6 @@ import SimpleDSATemplateCard from './SimpleDSATemplateCard';
 const DSATemplatesList = ({ templates, onStatusUpdate }) => {
   const [selectedTopic, setSelectedTopic] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
 
   // Get unique topics
   const topics = useMemo(() => {
@@ -23,21 +22,9 @@ const DSATemplatesList = ({ templates, onStatusUpdate }) => {
     return templates.filter(t => {
       const matchesTopic = selectedTopic === 'all' || t.topic === selectedTopic;
       const matchesStatus = selectedStatus === 'all' || t.status === selectedStatus;
-      const matchesSearch = t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           t.problemStatement.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesTopic && matchesStatus && matchesSearch;
+      return matchesTopic && matchesStatus;
     });
-  }, [templates, selectedTopic, selectedStatus, searchQuery]);
-
-  // Calculate stats
-  const stats = useMemo(() => {
-    return {
-      total: templates.length,
-      notStarted: templates.filter(t => t.status === 'not_started').length,
-      practicing: templates.filter(t => t.status === 'practicing').length,
-      mastered: templates.filter(t => t.status === 'mastered').length
-    };
-  }, [templates]);
+  }, [templates, selectedTopic, selectedStatus]);
 
   return (
     <div className="dsa-templates-list-only">

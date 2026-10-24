@@ -5,6 +5,7 @@
   "bg": "#FAECE7",
   "questions": [
     {
+      "id": "sys-q001",
       "q": "What is the difference between Horizontal and Vertical scaling? When does Horizontal fail?",
       "freq": true,
       "d": "e",
@@ -13,6 +14,7 @@
       "notes": ""
     },
     {
+      "id": "sys-q002",
       "q": "Explain the CAP Theorem.",
       "freq": true,
       "d": "m",
@@ -23,6 +25,7 @@
       "notes": ""
     },
     {
+      "id": "sys-q003",
       "q": "What is Eventual Consistency? How do you handle it in application code?",
       "freq": true,
       "d": "h",
@@ -30,6 +33,7 @@
       "notes": ""
     },
     {
+      "id": "sys-q004",
       "q": "Design a Rate Limiter. What algorithms exist?",
       "freq": true,
       "d": "h",
@@ -37,6 +41,7 @@
       "notes": ""
     },
     {
+      "id": "sys-q005",
       "q": "What is a Message Queue? Kafka vs RabbitMQ.",
       "freq": true,
       "d": "h",
@@ -44,6 +49,7 @@
       "notes": ""
     },
     {
+      "id": "sys-q006",
       "q": "Explain exactly-once delivery. Is it possible?",
       "freq": false,
       "d": "h",
@@ -51,6 +57,7 @@
       "notes": ""
     },
     {
+      "id": "sys-q007",
       "q": "What is the Circuit Breaker pattern?",
       "freq": true,
       "d": "m",
@@ -58,6 +65,7 @@
       "notes": ""
     },
     {
+      "id": "sys-q008",
       "q": "What are the common Caching Strategies (Cache-Aside, Write-Through)?",
       "freq": true,
       "d": "m",
@@ -68,6 +76,7 @@
       "notes": ""
     },
     {
+      "id": "sys-q009",
       "q": "What is Consistent Hashing and why is it used?",
       "freq": true,
       "d": "h",
@@ -78,6 +87,7 @@
       "notes": ""
     },
     {
+      "id": "sys-q010",
       "q": "Database Sharding vs Partitioning.",
       "freq": true,
       "d": "m",
@@ -85,6 +95,7 @@
       "notes": ""
     },
     {
+      "id": "sys-q011",
       "q": "What is a Bloom Filter?",
       "freq": true,
       "d": "h",
@@ -92,6 +103,7 @@
       "notes": ""
     },
     {
+      "id": "sys-q012",
       "q": "Event Sourcing vs CRUD.",
       "freq": false,
       "d": "h",
@@ -99,6 +111,7 @@
       "notes": ""
     },
     {
+      "id": "sys-q013",
       "q": "What is CQRS (Command Query Responsibility Segregation)?",
       "freq": true,
       "d": "h",
@@ -106,6 +119,7 @@
       "notes": ""
     },
     {
+      "id": "sys-q014",
       "q": "Forward Proxy vs Reverse Proxy.",
       "freq": true,
       "d": "e",
@@ -113,6 +127,7 @@
       "notes": ""
     },
     {
+      "id": "sys-q015",
       "q": "What is Long Polling vs WebSockets vs Server-Sent Events (SSE)?",
       "freq": true,
       "d": "m",
@@ -120,6 +135,7 @@
       "notes": ""
     },
     {
+      "id": "sys-q016",
       "q": "How does a CDN (Content Delivery Network) work?",
       "freq": true,
       "d": "e",
@@ -127,6 +143,7 @@
       "notes": ""
     },
     {
+      "id": "sys-q017",
       "q": "What is the Saga Pattern in Microservices?",
       "freq": true,
       "d": "h",
@@ -134,6 +151,7 @@
       "notes": ""
     },
     {
+      "id": "sys-q018",
       "q": "What is Distributed Tracing? (OpenTelemetry, Jaeger)",
       "freq": false,
       "d": "m",
@@ -141,6 +159,7 @@
       "notes": ""
     },
     {
+      "id": "sys-q019",
       "q": "What is a Database Connection Pool?",
       "freq": false,
       "d": "m",
@@ -148,6 +167,7 @@
       "notes": ""
     },
     {
+      "id": "sys-q020",
       "q": "SQL vs NoSQL. How do you choose?",
       "freq": true,
       "d": "m",
@@ -155,6 +175,7 @@
       "notes": ""
     },
     {
+      "id": "sys-q021",
       "q": "Explain API Pagination strategies (Offset vs Keyset/Cursor).",
       "freq": true,
       "d": "h",
@@ -162,6 +183,7 @@
       "notes": ""
     },
     {
+      "id": "sys-q022",
       "q": "What is Heartbeat and Gossip Protocol?",
       "freq": false,
       "d": "h",
@@ -169,6 +191,7 @@
       "notes": ""
     },
     {
+      "id": "sys-q023",
       "q": "What is Two-Phase Commit (2PC)?",
       "freq": false,
       "d": "h",
@@ -176,6 +199,7 @@
       "notes": ""
     },
     {
+      "id": "sys-q024",
       "q": "What is Leader Election and Split Brain?",
       "freq": false,
       "d": "h",

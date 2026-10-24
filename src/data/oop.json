@@ -5,6 +5,7 @@
   "bg": "#E1F5EE",
   "questions": [
     {
+      "id": "oop-q001",
       "q": "What are the 4 Pillars of OOP? Explain each briefly.",
       "freq": true,
       "d": "e",
@@ -16,6 +17,7 @@
       "notes": ""
     },
     {
+      "id": "oop-q002",
       "q": "What is the difference between Abstraction and Encapsulation?",
       "freq": true,
       "d": "m",
@@ -24,6 +26,7 @@
       "notes": ""
     },
     {
+      "id": "oop-q003",
       "q": "Explain polymorphism deeply \u2014 static vs dynamic binding.",
       "freq": true,
       "d": "h",
@@ -35,6 +38,7 @@
       "notes": ""
     },
     {
+      "id": "oop-q004",
       "q": "Abstract Class vs Interface. When should you use which?",
       "freq": true,
       "d": "m",
@@ -43,6 +47,7 @@
       "notes": ""
     },
     {
+      "id": "oop-q005",
       "q": "Composition vs Inheritance. Why favor composition?",
       "freq": true,
       "d": "m",
@@ -53,6 +58,7 @@
       "notes": ""
     },
     {
+      "id": "oop-q006",
       "q": "Explain Association, Aggregation, and Composition.",
       "freq": false,
       "d": "h",
@@ -61,6 +67,7 @@
       "notes": ""
     },
     {
+      "id": "oop-q007",
       "q": "What is the Diamond Problem in Multiple Inheritance?",
       "freq": true,
       "d": "h",
@@ -71,6 +78,7 @@
       "notes": ""
     },
     {
+      "id": "oop-q008",
       "q": "Explain Coupling and Cohesion.",
       "freq": true,
       "d": "m",
@@ -79,6 +87,7 @@
       "notes": ""
     },
     {
+      "id": "oop-q009",
       "q": "What is the SOLID acronym? Briefly explain each.",
       "freq": true,
       "d": "h",
@@ -89,6 +98,7 @@
       "notes": ""
     },
     {
+      "id": "oop-q010",
       "q": "Explain the Liskov Substitution Principle (LSP) with a violation example.",
       "freq": true,
       "d": "h",
@@ -97,6 +107,7 @@
       "notes": ""
     },
     {
+      "id": "oop-q011",
       "q": "Explain the Open/Closed Principle (OCP) with an example.",
       "freq": true,
       "d": "m",
@@ -104,6 +115,7 @@
       "notes": ""
     },
     {
+      "id": "oop-q012",
       "q": "What is the difference between Deep Copy and Shallow Copy?",
       "freq": true,
       "d": "m",
@@ -114,6 +126,7 @@
       "notes": ""
     },
     {
+      "id": "oop-q013",
       "q": "What is the Singleton Pattern? How do you make it Thread-Safe?",
       "freq": true,
       "d": "h",
@@ -125,6 +138,7 @@
       "notes": ""
     },
     {
+      "id": "oop-q014",
       "q": "What is the Factory Method Pattern?",
       "freq": true,
       "d": "m",
@@ -133,6 +147,7 @@
       "notes": ""
     },
     {
+      "id": "oop-q015",
       "q": "Explain the Strategy Pattern.",
       "freq": true,
       "d": "m",
@@ -143,6 +158,7 @@
       "notes": ""
     },
     {
+      "id": "oop-q016",
       "q": "What is the Observer Pattern?",
       "freq": true,
       "d": "e",
@@ -150,6 +166,7 @@
       "notes": ""
     },
     {
+      "id": "oop-q017",
       "q": "Pass-by-Value vs Pass-by-Reference. How does Java/Python do it?",
       "freq": true,
       "d": "h",
@@ -158,6 +175,7 @@
       "notes": ""
     },
     {
+      "id": "oop-q018",
       "q": "Stack Memory vs Heap Memory.",
       "freq": true,
       "d": "m",
@@ -165,6 +183,7 @@
       "notes": ""
     },
     {
+      "id": "oop-q019",
       "q": "What is the difference between == and .equals()?",
       "freq": true,
       "d": "e",
@@ -175,6 +194,7 @@
       "notes": ""
     },
     {
+      "id": "oop-q020",
       "q": "Explain the 'static' keyword (Methods, Variables, Blocks, Classes).",
       "freq": true,
       "d": "m",
@@ -183,6 +203,7 @@
       "notes": ""
     },
     {
+      "id": "oop-q021",
       "q": "Explain the 'final' keyword (Java) / 'const' (C++).",
       "freq": true,
       "d": "e",
@@ -193,6 +214,7 @@
       "notes": ""
     },
     {
+      "id": "oop-q022",
       "q": "What is an Immutable Class? How do you create one?",
       "freq": true,
       "d": "h",
@@ -201,6 +223,7 @@
       "notes": ""
     },
     {
+      "id": "oop-q023",
       "q": "What is Dependency Injection (DI) and Inversion of Control (IoC)?",
       "freq": true,
       "d": "h",
@@ -208,6 +231,7 @@
       "notes": ""
     },
     {
+      "id": "oop-q024",
       "q": "What is Garbage Collection? Explain Generational GC.",
       "freq": true,
       "d": "h",
@@ -218,6 +242,7 @@
       "notes": ""
     },
     {
+      "id": "oop-q025",
       "q": "What is Exception Handling? Checked vs Unchecked Exceptions.",
       "freq": true,
       "d": "m",
@@ -226,6 +251,7 @@
       "notes": ""
     },
     {
+      "id": "oop-q026",
       "q": "What is Constructor Chaining? Explain the 'super' keyword.",
       "freq": false,
       "d": "e",
@@ -233,6 +259,7 @@
       "notes": ""
     },
     {
+      "id": "oop-q027",
       "q": "What is Upcasting and Downcasting?",
       "freq": false,
       "d": "m",

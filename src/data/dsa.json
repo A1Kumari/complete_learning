@@ -5,6 +5,7 @@
   "bg": "#EAF3DE",
   "questions": [
     {
+      "id": "dsa-q001",
       "q": "What is Amortized Time Complexity? Explain with a Dynamic Array.",
       "freq": true,
       "d": "m",
@@ -13,6 +14,7 @@
       "notes": ""
     },
     {
+      "id": "dsa-q002",
       "q": "What is the difference between a Tree, a Binary Tree, and a Binary Search Tree (BST)?",
       "freq": true,
       "d": "e",
@@ -23,6 +25,7 @@
       "notes": ""
     },
     {
+      "id": "dsa-q003",
       "q": "What is a Heap (Priority Queue)? Explain its operations.",
       "freq": true,
       "d": "m",
@@ -33,6 +36,7 @@
       "notes": ""
     },
     {
+      "id": "dsa-q004",
       "q": "Explain BFS vs DFS in Graphs/Trees. When to use which?",
       "freq": true,
       "d": "e",
@@ -41,6 +45,7 @@
       "notes": ""
     },
     {
+      "id": "dsa-q005",
       "q": "Explain Graph Representations: Adjacency Matrix vs Adjacency List.",
       "freq": true,
       "d": "m",
@@ -49,6 +54,7 @@
       "notes": ""
     },
     {
+      "id": "dsa-q006",
       "q": "What is Topological Sort? When is it used?",
       "freq": true,
       "d": "h",
@@ -56,6 +62,7 @@
       "notes": ""
     },
     {
+      "id": "dsa-q007",
       "q": "Dijkstra vs Bellman-Ford vs Floyd-Warshall.",
       "freq": false,
       "d": "h",
@@ -63,6 +70,7 @@
       "notes": ""
     },
     {
+      "id": "dsa-q008",
       "q": "What is a Trie (Prefix Tree)? Why use it over a HashMap?",
       "freq": true,
       "d": "h",
@@ -70,6 +78,7 @@
       "notes": ""
     },
     {
+      "id": "dsa-q009",
       "q": "Explain Dynamic Programming: Memoization vs Tabulation.",
       "freq": true,
       "d": "m",
@@ -77,6 +86,7 @@
       "notes": ""
     },
     {
+      "id": "dsa-q010",
       "q": "What is the Sliding Window technique?",
       "freq": true,
       "d": "m",
@@ -84,6 +94,7 @@
       "notes": ""
     },
     {
+      "id": "dsa-q011",
       "q": "What is Backtracking? How is it different from DFS/DP?",
       "freq": true,
       "d": "h",
@@ -91,6 +102,7 @@
       "notes": ""
     },
     {
+      "id": "dsa-q012",
       "q": "Explain the Disjoint Set (Union-Find) data structure.",
       "freq": false,
       "d": "h",
@@ -98,6 +110,7 @@
       "notes": ""
     },
     {
+      "id": "dsa-q013",
       "q": "What is a Segment Tree?",
       "freq": false,
       "d": "h",
@@ -105,6 +118,7 @@
       "notes": ""
     },
     {
+      "id": "dsa-q014",
       "q": "What is the Fast & Slow Pointer technique (Floyd's Cycle Finding)?",
       "freq": true,
       "d": "m",
@@ -112,6 +126,7 @@
       "notes": ""
     },
     {
+      "id": "dsa-q015",
       "q": "Explain Greedy Algorithms. When do they work?",
       "freq": true,
       "d": "m",
@@ -119,6 +134,7 @@
       "notes": ""
     },
     {
+      "id": "dsa-q016",
       "q": "What is a Monotonic Stack?",
       "freq": false,
       "d": "h",
@@ -126,6 +142,7 @@
       "notes": ""
     },
     {
+      "id": "dsa-q017",
       "q": "Explain KMP (Knuth-Morris-Pratt) String Matching.",
       "freq": false,
       "d": "h",
@@ -133,6 +150,7 @@
       "notes": ""
     },
     {
+      "id": "dsa-q018",
       "q": "What is a Hash Collision? How are they resolved?",
       "freq": true,
       "d": "m",
@@ -140,6 +158,7 @@
       "notes": ""
     },
     {
+      "id": "dsa-q019",
       "q": "What is tail recursion? Why is it useful?",
       "freq": false,
       "d": "m",

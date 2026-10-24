@@ -19,7 +19,7 @@ const DSAQATable = ({ questions }) => {
         </div>
 
         {questions.map((q, idx) => {
-          const qId = idx;
+          const qId = q.id;
           const isExpanded = expandedRow === qId;
           return (
             <div key={qId}>

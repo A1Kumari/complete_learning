@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["subjects", "topics", "concepts"],
+  "properties": {
+    "subjects": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "title", "icon"],
+        "properties": {
+          "id": { "$ref": "#/definitions/id" }, "title": { "$ref": "#/definitions/text" },
+          "icon": { "$ref": "#/definitions/text" },
+          "shortTitle": { "$ref": "#/definitions/text" },
+          "category": { "enum": ["Core CS", "Development"] },
+          "description": { "$ref": "#/definitions/text" },
+          "accent": { "enum": ["blue", "violet", "green", "orange", "rose", "teal"] },
+          "architectureOrder": { "type": "integer", "minimum": 0 },
+          "legacyFile": { "type": "string", "pattern": "^[a-z][a-z0-9_-]*\\.json$" }
+        }
+      }
+    },
+    "topics": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+         "required": ["id", "subjectId", "title", "order"],
+         "properties": {
+          "id": { "$ref": "#/definitions/id" }, "subjectId": { "$ref": "#/definitions/id" },
+           "title": { "$ref": "#/definitions/text" }, "order": { "type": "integer", "minimum": 0 },
+           "phase": { "type": "integer", "minimum": 1, "maximum": 8 },
+           "phaseTitle": { "$ref": "#/definitions/text" },
+           "prerequisiteIds": { "type": "array", "items": { "$ref": "#/definitions/id" }, "uniqueItems": true },
+           "milestone": { "$ref": "#/definitions/text" },
+           "priority": { "enum": ["Essential", "Important", "Advanced", null] },
+          "description": { "$ref": "#/definitions/text" },
+          "scope": { "type": "array", "items": { "$ref": "#/definitions/text" }, "minItems": 1 },
+          "planningStatus": { "enum": ["planned", "in-progress", "pending-planning"] },
+          "group": { "$ref": "#/definitions/text" }
+        }
+      }
+    },
+    "concepts": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "title"],
+        "properties": { "id": { "$ref": "#/definitions/id" }, "title": { "$ref": "#/definitions/text" } }
+      }
+    }
+  },
+  "definitions": {
+    "id": { "type": "string", "pattern": "^(?!custom-)(?!constructor$)(?!prototype$)[a-z][a-z0-9_-]{0,199}$" },
+    "text": { "type": "string", "minLength": 1, "pattern": "\\S" }
+  }
+}

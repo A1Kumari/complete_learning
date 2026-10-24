@@ -1,5 +1,28 @@
 # React + Vite
 
+## Learning data
+
+Published questions and templates come from `src/data/`. Personal notes, progress,
+custom questions, and deletions are stored separately in the browser. Legacy data
+is migrated with retained backups. Use **Export Backup** / **Import Backup** in
+the app to save or restore personal data.
+
+See [DATA_FLOW.md](DATA_FLOW.md) for identity rules, migration behavior, recovery,
+and verification. Run `npm test`, `npm run lint`, and `npm run build` for checks.
+
+## Content foundation and pilot
+
+The OS tab now includes one **Processes, threads, and the execution lifecycle**
+lesson and three Markdown interview questions. The other 187 questions remain in
+legacy JSON. Run `npm run dev` to review the pilot, or open
+`/#/lesson/lesson-os-processes-threads`.
+
+See [CONTENT_AUTHORING.md](CONTENT_AUTHORING.md) for schemas, authoring examples,
+links/assets, build-time validation, and compatibility rules. `npm run content:check`
+validates without generating files; normal development and production builds
+compile content automatically. Deployment remains a static Vite build to `dist/`.
+See [BROWSER_VERIFICATION.md](BROWSER_VERIFICATION.md) for the pilot browser checks.
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:

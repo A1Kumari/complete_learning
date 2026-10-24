@@ -5,6 +5,7 @@
   "bg": "#EEEDFE",
   "questions": [
     {
+      "id": "net-q001",
       "q": "Explain the OSI Model. What are the 7 layers?",
       "freq": true,
       "d": "e",
@@ -16,6 +17,7 @@
       "notes": ""
     },
     {
+      "id": "net-q002",
       "q": "What is the difference between TCP and UDP? When to use which?",
       "freq": true,
       "d": "e",
@@ -24,6 +26,7 @@
       "notes": ""
     },
     {
+      "id": "net-q003",
       "q": "Walk through the TCP 3-way handshake and 4-way termination.",
       "freq": true,
       "d": "m",
@@ -34,6 +37,7 @@
       "notes": ""
     },
     {
+      "id": "net-q004",
       "q": "What is TCP Flow Control vs Congestion Control?",
       "freq": true,
       "d": "h",
@@ -42,6 +46,7 @@
       "notes": ""
     },
     {
+      "id": "net-q005",
       "q": "What happens exactly when you type 'google.com' into your browser?",
       "freq": true,
       "d": "m",
@@ -50,6 +55,7 @@
       "notes": ""
     },
     {
+      "id": "net-q006",
       "q": "Explain the DNS Resolution process in detail.",
       "freq": true,
       "d": "m",
@@ -60,6 +66,7 @@
       "notes": ""
     },
     {
+      "id": "net-q007",
       "q": "What is the difference between a MAC address and an IP address?",
       "freq": true,
       "d": "e",
@@ -70,6 +77,7 @@
       "notes": ""
     },
     {
+      "id": "net-q008",
       "q": "How does Ping and Traceroute work?",
       "freq": false,
       "d": "m",
@@ -77,6 +85,7 @@
       "notes": ""
     },
     {
+      "id": "net-q009",
       "q": "Explain Subnetting and CIDR notation (e.g., /24).",
       "freq": true,
       "d": "m",
@@ -87,6 +96,7 @@
       "notes": ""
     },
     {
+      "id": "net-q010",
       "q": "What is NAT (Network Address Translation)?",
       "freq": true,
       "d": "m",
@@ -95,6 +105,7 @@
       "notes": ""
     },
     {
+      "id": "net-q011",
       "q": "How do WebRTC and P2P networks bypass NAT? (STUN/TURN)",
       "freq": false,
       "d": "h",
@@ -102,6 +113,7 @@
       "notes": ""
     },
     {
+      "id": "net-q012",
       "q": "What is the difference between IPv4 and IPv6?",
       "freq": false,
       "d": "e",
@@ -109,6 +121,7 @@
       "notes": ""
     },
     {
+      "id": "net-q013",
       "q": "Explain DHCP and the DORA process.",
       "freq": false,
       "d": "m",
@@ -116,6 +129,7 @@
       "notes": ""
     },
     {
+      "id": "net-q014",
       "q": "Hub vs Switch vs Router.",
       "freq": true,
       "d": "e",
@@ -123,6 +137,7 @@
       "notes": ""
     },
     {
+      "id": "net-q015",
       "q": "What is an ARP Table vs MAC Table vs Routing Table?",
       "freq": true,
       "d": "m",
@@ -130,6 +145,7 @@
       "notes": ""
     },
     {
+      "id": "net-q016",
       "q": "What is BGP (Border Gateway Protocol)?",
       "freq": true,
       "d": "h",
@@ -140,6 +156,7 @@
       "notes": ""
     },
     {
+      "id": "net-q017",
       "q": "Unicast vs Broadcast vs Multicast vs Anycast.",
       "freq": true,
       "d": "m",
@@ -147,6 +164,7 @@
       "notes": ""
     },
     {
+      "id": "net-q018",
       "q": "What is a CDN (Content Delivery Network)?",
       "freq": true,
       "d": "e",
@@ -154,6 +172,7 @@
       "notes": ""
     },
     {
+      "id": "net-q019",
       "q": "What is a Reverse Proxy vs a Forward Proxy?",
       "freq": true,
       "d": "m",
@@ -161,6 +180,7 @@
       "notes": ""
     },
     {
+      "id": "net-q020",
       "q": "Layer 4 vs Layer 7 Load Balancer.",
       "freq": true,
       "d": "h",
@@ -168,6 +188,7 @@
       "notes": ""
     },
     {
+      "id": "net-q021",
       "q": "What is HTTP/1.1 vs HTTP/2 vs HTTP/3?",
       "freq": true,
       "d": "h",
@@ -175,6 +196,7 @@
       "notes": ""
     },
     {
+      "id": "net-q022",
       "q": "What happens during a TLS 1.2 / 1.3 Handshake?",
       "freq": false,
       "d": "h",
@@ -182,6 +204,7 @@
       "notes": ""
     },
     {
+      "id": "net-q023",
       "q": "What is SNI (Server Name Indication)?",
       "freq": false,
       "d": "h",
@@ -189,6 +212,7 @@
       "notes": ""
     },
     {
+      "id": "net-q024",
       "q": "Explain HTTP Status Codes (2xx, 3xx, 4xx, 5xx).",
       "freq": true,
       "d": "e",
@@ -196,6 +220,7 @@
       "notes": ""
     },
     {
+      "id": "net-q025",
       "q": "What are HTTP Methods? What does Idempotency mean?",
       "freq": true,
       "d": "m",
@@ -203,6 +228,7 @@
       "notes": ""
     },
     {
+      "id": "net-q026",
       "q": "What is CORS (Cross-Origin Resource Sharing)?",
       "freq": true,
       "d": "m",
@@ -210,6 +236,7 @@
       "notes": ""
     },
     {
+      "id": "net-q027",
       "q": "Session Cookies vs JWT (JSON Web Tokens).",
       "freq": true,
       "d": "m",
@@ -217,6 +244,7 @@
       "notes": ""
     },
     {
+      "id": "net-q028",
       "q": "Cookies vs LocalStorage vs SessionStorage.",
       "freq": true,
       "d": "e",
@@ -224,6 +252,7 @@
       "notes": ""
     },
     {
+      "id": "net-q029",
       "q": "What is CSRF (Cross-Site Request Forgery) and how to prevent it?",
       "freq": true,
       "d": "m",
@@ -231,6 +260,7 @@
       "notes": ""
     },
     {
+      "id": "net-q030",
       "q": "What is XSS (Cross-Site Scripting) and how to prevent it?",
       "freq": true,
       "d": "m",
@@ -238,6 +268,7 @@
       "notes": ""
     },
     {
+      "id": "net-q031",
       "q": "REST vs GraphQL vs gRPC.",
       "freq": true,
       "d": "m",
@@ -245,6 +276,7 @@
       "notes": ""
     },
     {
+      "id": "net-q032",
       "q": "Explain different types of DDoS Attacks and mitigations.",
       "freq": true,
       "d": "h",
@@ -252,6 +284,7 @@
       "notes": ""
     },
     {
+      "id": "net-q033",
       "q": "What is MTU and IP Fragmentation? What is MSS?",
       "freq": false,
       "d": "h",
@@ -259,6 +292,7 @@
       "notes": ""
     },
     {
+      "id": "net-q034",
       "q": "What is a VLAN (Virtual LAN)?",
       "freq": false,
       "d": "m",
@@ -266,6 +300,7 @@
       "notes": ""
     },
     {
+      "id": "net-q035",
       "q": "What is a VPN (Virtual Private Network) and IPSec?",
       "freq": false,
       "d": "h",
@@ -273,6 +308,7 @@
       "notes": ""
     },
     {
+      "id": "net-q036",
       "q": "What is the difference between TCP Keep-Alive and HTTP Keep-Alive?",
       "freq": false,
       "d": "h",
@@ -280,6 +316,7 @@
       "notes": ""
     },
     {
+      "id": "net-q037",
       "q": "Explain Symmetric vs Asymmetric Encryption in the context of HTTPS.",
       "freq": true,
       "d": "m",
@@ -287,6 +324,7 @@
       "notes": ""
     },
     {
+      "id": "net-q038",
       "q": "What is WebSocket? How is it different from HTTP Long-Polling?",
       "freq": true,
       "d": "m",
@@ -294,6 +332,7 @@
       "notes": ""
     },
     {
+      "id": "net-q039",
       "q": "What is a Firewall? Stateless vs Stateful.",
       "freq": true,
       "d": "m",
@@ -301,6 +340,7 @@
       "notes": ""
     },
     {
+      "id": "net-q040",
       "q": "What is Web Application Firewall (WAF)?",
       "freq": false,
       "d": "e",
