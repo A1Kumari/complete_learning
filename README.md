@@ -7,6 +7,13 @@ custom questions, and deletions are stored separately in the browser. Legacy dat
 is migrated with retained backups. Use **Export Backup** / **Import Backup** in
 the app to save or restore personal data.
 
+Study activity is recorded only in production builds on non-local hosts, while a
+lesson or practice page is visible and recently active. Open **Current Streak**
+on the progress page to see a monthly calendar and daily study time. Activity is
+stored in that site's browser storage, so it is specific to the browser and device;
+it is included in personal backups. Local development and localhost previews do
+not accumulate study time or streak days.
+
 See [DATA_FLOW.md](DATA_FLOW.md) for identity rules, migration behavior, recovery,
 and verification. Run `npm test`, `npm run lint`, and `npm run build` for checks.
 

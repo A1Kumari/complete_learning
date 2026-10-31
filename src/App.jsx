@@ -7,7 +7,7 @@ import DSATemplatesList from './components/DSATemplatesList';
 import DSAQATable from './components/DSAQATable';
 import { openPersonalStore, deriveTopics, deriveTemplates, updateQuestion, deleteQuestion, updateTemplateStatus, updateTemplateNote, parseBackup } from './personalData';
 import LearningShell from './components/LearningShell';
-import { localDay } from './studyProgress';
+import { localDay, shouldTrackStudy } from './studyProgress';
 import ProgressPage from './components/ProgressPage';
 import { DashboardPage, SubjectPage, UpcomingPractice, NotesPage } from './components/LearningPages';
 import './App.css';
@@ -114,7 +114,7 @@ const App = () => {
   }, [store]);
 
   useEffect(() => {
-    if (!['lesson', 'practice', 'question'].includes(route.kind)) return;
+    if (!shouldTrackStudy(import.meta.env.PROD, window.location.hostname) || !['lesson', 'practice', 'question'].includes(route.kind)) return;
     let activeUntil = Date.now() + 60000;
     let previous = Date.now();
     const activity = () => { activeUntil = Date.now() + 60000; };
@@ -136,9 +136,10 @@ const App = () => {
     if (!lesson) return;
     const current = latestPersonal.current;
     const completed = current.completedLessonIds.includes(lesson.id);
-    const day = localDay();
     commit({ ...current, completedLessonIds: completed ? current.completedLessonIds.filter(id => id !== lesson.id) : [...current.completedLessonIds, lesson.id],
-      studyDays: { ...current.studyDays, [day]: current.studyDays[day] || 1 } });
+      studyDays: shouldTrackStudy(import.meta.env.PROD, window.location.hostname)
+        ? { ...current.studyDays, [localDay()]: current.studyDays[localDay()] || 1 }
+        : current.studyDays });
   };
 
   const exportBackup = () => {
