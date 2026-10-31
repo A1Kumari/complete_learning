@@ -114,7 +114,7 @@ const App = () => {
   }, [store]);
 
   useEffect(() => {
-    if (!shouldTrackStudy(import.meta.env.PROD, window.location.hostname) || !['lesson', 'practice', 'question'].includes(route.kind)) return;
+    if (!shouldTrackStudy(import.meta.env.PROD, window.location.hostname)) return;
     let activeUntil = Date.now() + 60000;
     let previous = Date.now();
     const activity = () => { activeUntil = Date.now() + 60000; };
@@ -136,10 +136,14 @@ const App = () => {
     if (!lesson) return;
     const current = latestPersonal.current;
     const completed = current.completedLessonIds.includes(lesson.id);
-    commit({ ...current, completedLessonIds: completed ? current.completedLessonIds.filter(id => id !== lesson.id) : [...current.completedLessonIds, lesson.id],
-      studyDays: shouldTrackStudy(import.meta.env.PROD, window.location.hostname)
-        ? { ...current.studyDays, [localDay()]: current.studyDays[localDay()] || 1 }
-        : current.studyDays });
+    commit({ ...current, completedLessonIds: completed ? current.completedLessonIds.filter(id => id !== lesson.id) : [...current.completedLessonIds, lesson.id] });
+  };
+
+  const markStudyDayComplete = () => {
+    const current = latestPersonal.current;
+    const day = localDay();
+    if ((current.studyDays[day] || 0) < 3600 || current.completedStudyDays.includes(day)) return;
+    commit({ ...current, completedStudyDays: [...current.completedStudyDays, day] });
   };
 
   const exportBackup = () => {
@@ -276,15 +280,15 @@ const App = () => {
   return (
     <LearningShell subjects={CONTENT.subjects} activeSubject={activeSubject?.id} searchQuery={searchQuery} onSearch={setSearchQuery} legacyActions={backupActions}>
       {route?.kind === 'home' ? <DashboardPage subjects={CONTENT.subjects} data={data} content={CONTENT} />
-        : route?.kind === 'progress' ? <ProgressPage subjects={CONTENT.subjects} data={data} content={CONTENT} personal={personal} />
+        : route?.kind === 'progress' ? <ProgressPage subjects={CONTENT.subjects} data={data} content={CONTENT} personal={personal} onMarkStudyDay={markStudyDayComplete} />
         : route?.kind === 'notes' ? <NotesPage notes={savedNotes} onUpdate={updateSavedNote} />
-        : route?.kind === 'subject' ? <SubjectPage subject={CONTENT.subjects.find(subject => subject.id === route.id) || CONTENT.subjects[0]} data={data} content={CONTENT} />
-        : route?.kind === 'lesson' ? <div className="lesson-page-frame">{lesson && <button className="secondary-button" onClick={toggleLessonCompletion}>{personal.completedLessonIds.includes(lesson.id) ? '✓ Completed — mark incomplete' : 'Mark lesson complete'}</button>}<LessonReader key={lesson?.id || 'missing'} lesson={lesson} section={route.section} /></div>
+        : route?.kind === 'subject' ? <SubjectPage subject={CONTENT.subjects.find(subject => subject.id === route.id) || CONTENT.subjects[0]} data={data} content={CONTENT} topicId={route.topicId} />
+        : route?.kind === 'lesson' ? <div className="lesson-page-frame">{lesson && <button className="secondary-button" onClick={toggleLessonCompletion}>{personal.completedLessonIds.includes(lesson.id) ? '✓ Completed — mark incomplete' : 'Mark lesson complete'}</button>}<LessonReader key={lesson?.id || 'missing'} lesson={lesson} section={route.section} returnTo={route.returnTo} /></div>
         : route?.kind === 'practice' && filteredQuestions.length === 0 ? <UpcomingPractice subject={CONTENT.subjects.find(subject => subject.id === route.id)} />
         : <div className="legacy-workspace">
       <div className={`app-container ${showNotes ? 'notes-open' : ''}`}>
       <div className="main-content">
-        <a className="question-back" href={contentHref('subject', activeSubject.id)}>← Back to sections</a>
+        <a className="question-back" href={route.returnTo || contentHref('subject', activeSubject.id)}>← Back to sections</a>
         <header>
           {CONTENT.draftPreview && <p className="preview-banner" role="status">Local draft preview — unpublished content. Production builds exclude drafts.</p>}
 

@@ -16,12 +16,14 @@ const matchesQuestionContent = (question, candidate) => candidate
   && questionContentFields.every(key => JSON.stringify(question[key]) === JSON.stringify(candidate[key]));
 
 export function emptyPersonal() {
-  return { schemaVersion: 2, questionState: {}, customQuestions: [], hiddenQuestionIds: [], templateState: {}, recovery: [], completedLessonIds: [], studyDays: {} };
+  return { schemaVersion: 3, questionState: {}, customQuestions: [], hiddenQuestionIds: [], templateState: {}, recovery: [], completedLessonIds: [], studyDays: {}, completedStudyDays: [] };
 }
 
 export function migratePersonal(value) {
   validatePersonal(value);
-  return value.schemaVersion === 1 ? { ...value, schemaVersion: 2, completedLessonIds: [], studyDays: {} } : value;
+  if (value.schemaVersion === 1) return { ...value, schemaVersion: 3, completedLessonIds: [], studyDays: {}, completedStudyDays: [] };
+  if (value.schemaVersion === 2) return { ...value, schemaVersion: 3, completedStudyDays: [] };
+  return value;
 }
 
 function validQuestion(q) {
@@ -33,12 +35,13 @@ function validQuestion(q) {
 
 // Strict validation for the NEW format. Unknown fields/versions are not silently discarded.
 export function validatePersonal(value) {
-  assert(record(value) && [1, 2].includes(value.schemaVersion), 'Unsupported personal-data version. Original storage is untouched.');
-  assert(fields(value, ['schemaVersion', 'questionState', 'customQuestions', 'hiddenQuestionIds', 'templateState', 'recovery', ...(value.schemaVersion === 2 ? ['completedLessonIds', 'studyDays'] : [])]), 'Unknown personal-data fields.');
-  if (value.schemaVersion === 2) {
+  assert(record(value) && [1, 2, 3].includes(value.schemaVersion), 'Unsupported personal-data version. Original storage is untouched.');
+  assert(fields(value, ['schemaVersion', 'questionState', 'customQuestions', 'hiddenQuestionIds', 'templateState', 'recovery', ...(value.schemaVersion >= 2 ? ['completedLessonIds', 'studyDays'] : []), ...(value.schemaVersion === 3 ? ['completedStudyDays'] : [])]), 'Unknown personal-data fields.');
+  if (value.schemaVersion >= 2) {
     assert(Array.isArray(value.completedLessonIds) && value.completedLessonIds.every(safeId) && new Set(value.completedLessonIds).size === value.completedLessonIds.length, 'Invalid lesson completion IDs.');
     assert(record(value.studyDays) && Object.entries(value.studyDays).every(([day, seconds]) => /^\d{4}-\d{2}-\d{2}$/.test(day) && new Date(`${day}T12:00:00Z`).toISOString().slice(0, 10) === day && Number.isSafeInteger(seconds) && seconds > 0), 'Invalid study activity.');
   }
+  if (value.schemaVersion === 3) assert(Array.isArray(value.completedStudyDays) && value.completedStudyDays.every(day => /^\d{4}-\d{2}-\d{2}$/.test(day) && new Date(`${day}T12:00:00Z`).toISOString().slice(0, 10) === day) && new Set(value.completedStudyDays).size === value.completedStudyDays.length, 'Invalid completed study days.');
   for (const [name, statuses] of [['questionState', QUESTION_STATUSES], ['templateState', TEMPLATE_STATUSES]]) {
     assert(record(value[name]), `Invalid ${name}.`);
     for (const [id, state] of Object.entries(value[name])) {
@@ -265,8 +268,8 @@ export function openPersonalStore(storage, topics, templates, baselines = {}) {
       assert(!blocked, 'Storage is read-only because existing data could not be loaded. Export a backup before recovery.');
       validatePersonal(next);
       assert(storage.getItem(PERSONAL_KEY) === expectedRaw, 'Data changed in another tab. Export your work and reload before saving.');
-      if (expectedRaw && JSON.parse(expectedRaw).schemaVersion === 1 && next.schemaVersion === 2) {
-        retainArchive(storage, JSON.stringify({ kind: 'personal-v1-to-v2', personal: expectedRaw }));
+      if (expectedRaw && JSON.parse(expectedRaw).schemaVersion < 3 && next.schemaVersion === 3) {
+        retainArchive(storage, JSON.stringify({ kind: 'personal-migration', personal: expectedRaw }));
       }
       if (pendingMigration && LEGACY_KEYS.some(k => legacy[k] !== null)) {
         assert(JSON.stringify(readLegacy(storage)) === JSON.stringify(legacy), 'Legacy data changed in another tab. Reload before migrating.');

@@ -9,7 +9,7 @@ const subscribeScreen = callback => {
   return () => media.removeEventListener('change', callback);
 };
 
-export default function LessonReader({ lesson, section = '' }) {
+export default function LessonReader({ lesson, section = '', returnTo = '' }) {
   const [loaded, setLoaded] = useState(null);
   const [failure, setFailure] = useState(null);
   const article = useRef(null);
@@ -51,7 +51,7 @@ export default function LessonReader({ lesson, section = '' }) {
 
   return (
     <article className="lesson-reader" ref={article} tabIndex={-1}>
-      <a href={contentHref('subject', lesson.subjectId)} className="btn-action lesson-back">← Back</a>
+      <a href={returnTo || contentHref('subject', lesson.subjectId)} className="btn-action lesson-back">← Back</a>
       <p className="lesson-breadcrumb">{subject?.title} / {topic?.title}</p>
       {lesson.status === 'draft' && <span className="badge badge-freq">Draft — local preview</span>}
       <h2>{lesson.title}</h2>

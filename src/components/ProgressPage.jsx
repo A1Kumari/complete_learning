@@ -32,9 +32,12 @@ function StudyCalendar({ days, onClose }) {
   </dialog>;
 }
 
-export default function ProgressPage({ subjects, data, content, personal }) {
+export default function ProgressPage({ subjects, data, content, personal, onMarkStudyDay }) {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const tracking = studyStats(personal);
+  const today = localDay();
+  const todaySeconds = personal.studyDays[today] || 0;
+  const todayComplete = personal.completedStudyDays.includes(today);
   const completed = new Set(personal.completedLessonIds);
   const questions = data.flatMap(group => group.questions);
   const reviewed = questions.filter(question => question.status !== 'not-started').length;
@@ -49,7 +52,7 @@ export default function ProgressPage({ subjects, data, content, personal }) {
     <div className="journey-metrics">
       <Metric icon={<BookOpen size={20} />} color="#20bf68" title="Lessons Completed" count={lessonCount} total={content.lessons.length} />
       <Metric icon={<CheckCircle2 size={20} />} color="#2875ee" title="Questions Reviewed" count={reviewed} total={questions.length} />
-      <section className="journey-metric" style={{ '--metric-color': '#f59b24' }}><button className="streak-calendar-button" onClick={() => setCalendarOpen(true)} aria-haspopup="dialog"><div className="journey-metric-heading"><span className="journey-icon"><Flame size={20} /></span><div><small>Current Streak</small><strong>{tracking.streak} days</strong></div></div><div className="journey-week">{week.map(day => <span key={day.day}><i className={personal.studyDays[day.day] ? 'active' : ''} aria-label={`${day.day}: ${personal.studyDays[day.day] ? 'studied' : 'no activity'}`} /><small>{day.label}</small></span>)}</div><span className="streak-calendar-link">View calendar →</span></button></section>
+      <section className="journey-metric" style={{ '--metric-color': '#f59b24' }}><div className="journey-metric-heading"><span className="journey-icon"><Flame size={20} /></span><div><small>Current Streak</small><strong>{tracking.streak} days</strong></div></div><div className="journey-week">{week.map(day => <span key={day.day}><i className={personal.completedStudyDays.includes(day.day) ? 'active' : ''} aria-label={`${day.day}: ${personal.completedStudyDays.includes(day.day) ? 'streak completed' : 'not completed'}`} /><small>{day.label}</small></span>)}</div><button className="streak-calendar-link" onClick={() => setCalendarOpen(true)} aria-haspopup="dialog">View calendar →</button><button className="secondary-button streak-complete-button" onClick={onMarkStudyDay} disabled={todayComplete || todaySeconds < 3600}>{todayComplete ? 'Today completed' : todaySeconds >= 3600 ? 'Mark today complete' : `Study ${Math.ceil((3600 - todaySeconds) / 60)} more min to mark complete`}</button></section>
     </div>
     {calendarOpen && <StudyCalendar days={personal.studyDays} onClose={() => setCalendarOpen(false)} />}
     <div className="section-heading"><h2>Progress by Subject</h2></div>

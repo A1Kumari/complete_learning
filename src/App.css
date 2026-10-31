@@ -1822,6 +1822,38 @@ body { background: var(--canvas); color: var(--ink); }
 .streak-calendar-button { display: block; width: 100%; padding: 0; border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }
 .streak-calendar-button:focus-visible { outline: 2px solid #2875ee; outline-offset: 5px; border-radius: 4px; }
 .streak-calendar-link { display: block; margin-top: 12px; color: var(--muted-ink); font-size: 12px; }
+
+.subject-notebook { margin-top: 2.5rem; }
+.notebook-heading { align-items: center; }
+.notebook-heading h2 { margin-bottom: 0.35rem; }
+.notebook-heading p { margin: 0; }
+.notebook-add-section { border: 0; cursor: pointer; }
+.notebook-empty { display: flex; flex-direction: column; gap: 0.35rem; padding: 1.5rem; border: 1px dashed var(--border); border-radius: 14px; color: var(--muted-ink); background: var(--surface, #fff); }
+.notebook-empty strong { color: var(--text); }
+.notebook-sections { display: grid; gap: 1rem; }
+.notebook-section { padding: 1.25rem; border: 1px solid var(--border); border-radius: 14px; background: var(--surface, #fff); box-shadow: 0 4px 16px rgba(18, 35, 72, 0.035); }
+.notebook-section-title { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.notebook-section-title h3 { margin: 0.25rem 0 0; color: var(--text); }
+.notebook-section-title .eyebrow { font-size: 0.65rem; }
+.notebook-form { display: grid; gap: 0.9rem; margin-top: 1rem; padding: 1rem; border-radius: 12px; background: var(--soft-surface, #f6f8fc); }
+.notebook-section-form { grid-template-columns: minmax(0, 1fr) auto; align-items: end; margin-bottom: 1rem; }
+.notebook-form label { display: grid; gap: 0.4rem; color: var(--text); font-size: 0.82rem; font-weight: 600; }
+.notebook-form input, .notebook-form textarea { width: 100%; padding: 0.75rem 0.85rem; border: 1px solid var(--border); border-radius: 8px; color: var(--text); background: var(--surface, #fff); font: inherit; font-weight: 400; }
+.notebook-form textarea { min-height: 160px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; line-height: 1.55; }
+.notebook-form button { justify-self: start; cursor: pointer; }
+.notebook-items { display: grid; gap: 0.65rem; margin-top: 1rem; }
+.notebook-item { overflow: hidden; border: 1px solid var(--border); border-radius: 10px; }
+.notebook-item summary { display: flex; justify-content: space-between; gap: 1rem; padding: 0.9rem 1rem; cursor: pointer; color: var(--text); }
+.notebook-item summary span, .notebook-empty-inline, .notebook-storage-note { color: var(--muted-ink); font-size: 0.8rem; }
+.notebook-empty-inline { margin: 1rem 0 0; }
+.notebook-markdown { padding: 0 1rem 1rem; color: var(--text); line-height: 1.7; overflow-wrap: anywhere; }
+.notebook-markdown h1, .notebook-markdown h2, .notebook-markdown h3 { margin: 1.2rem 0 0.5rem; font-size: 1.05rem; }
+.notebook-markdown pre { overflow-x: auto; padding: 0.9rem; border-radius: 8px; background: var(--soft-surface, #f6f8fc); }
+.notebook-markdown code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.notebook-markdown :not(pre) > code { padding: 0.12rem 0.3rem; border-radius: 4px; background: var(--soft-surface, #f6f8fc); }
+.notebook-storage-note { margin-top: 0.8rem; }
+.notebook-error { color: #b42318; }
+@media (max-width: 620px) { .notebook-heading, .notebook-section-title { align-items: flex-start; flex-direction: column; } .notebook-section-form { grid-template-columns: 1fr; } }
 .study-calendar-dialog { width: min(430px, calc(100vw - 32px)); max-height: 90vh; overflow: auto; padding: 24px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); color: var(--ink); }
 .study-calendar-dialog::backdrop { background: #10204080; }
 .study-calendar-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }

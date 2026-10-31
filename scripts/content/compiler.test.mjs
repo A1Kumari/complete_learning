@@ -242,7 +242,7 @@ test('subject-scoped custom questions, notes, statuses, deletion markers and bac
   const store = openPersonalStore(storage, groups, actual.templates, compiled.catalog.migrationBaselines);
   assert.deepEqual(store.personal, p);
   const backup = store.export(p);
-  assert.equal(parseBackup(backup).personal.schemaVersion, 2);
+  assert.equal(parseBackup(backup).personal.schemaVersion, 3);
   assert.deepEqual(store.restore(backup, p), p);
   const updated = structuredClone(compiled.catalog);
   updated.questions.reverse();
@@ -268,4 +268,8 @@ test('stable routes encode IDs/sections and reject malformed route encodings', (
     { kind: 'lesson', id: 'lesson-test', section: 'memory-model' });
   assert.equal(parseContentRoute('#/lesson/%broken'), null);
   assert.equal(parseContentRoute('#unknown'), null);
+  const returnTo = '#/subject/python?topic=python-basics';
+  const questionHref = contentHref('question', 'python-q001', '', { returnTo });
+  assert.equal(parseContentRoute(questionHref).returnTo, returnTo);
+  assert.deepEqual(parseContentRoute(returnTo), { kind: 'subject', id: 'python', topicId: 'python-basics' });
 });

@@ -1,6 +1,7 @@
 import { ArrowRight, BookOpen, CheckCircle2, ChevronRight, Clock3, FileText, Layers3, Pencil, Search, Target } from 'lucide-react';
 import { useState } from 'react';
 import { contentHref } from '../content/adapter';
+import SubjectNotebook from './SubjectNotebook';
 
 const palette = { blue: 'blue', violet: 'violet', green: 'green', orange: 'orange', rose: 'rose', teal: 'teal' };
 
@@ -40,14 +41,18 @@ export function DashboardPage({ subjects, data, content }) {
 }
 
 export function SubjectPage(props) {
-  const { subject, content } = props;
-  const [selectedTopicId, setSelectedTopicId] = useState(null);
+  const { subject, content, topicId } = props;
+  const [localSelectedTopicId, setLocalSelectedTopicId] = useState(null);
+  const selectedTopicId = topicId || localSelectedTopicId;
   const selectedTopic = content.topics.find(topic => topic.id === selectedTopicId && topic.subjectId === subject.id);
   const openTopic = event => {
     const card = event.target.closest('.topic-card');
     if (!card) return;
     const topic = content.topics.find(item => item.subjectId === subject.id && item.title === card.querySelector('h3')?.textContent);
-    if (topic) setSelectedTopicId(topic.id);
+    if (topic) {
+      setLocalSelectedTopicId(topic.id);
+      window.location.hash = `${contentHref('subject', subject.id)}?topic=${encodeURIComponent(topic.id)}`;
+    }
   };
   const prepareCards = node => {
     node?.querySelectorAll('.topic-card').forEach(card => {
@@ -66,8 +71,15 @@ export function SubjectPage(props) {
         openTopic(event);
       }
      }}>{subject.id === 'ai-engineering' && <CurriculumRoadmap topics={content.topics.filter(topic => topic.subjectId === subject.id)} />}<SubjectOverview {...props} /></div>
-    {selectedTopic && <dialog open ref={node => { if (node && !node.dataset.focused) { node.dataset.focused = 'true'; node.querySelector('button')?.focus(); } }} className="topic-content-dialog" aria-modal="true" aria-labelledby="topic-content-title" onCancel={() => setSelectedTopicId(null)} onKeyDown={event => {
-      if (event.key === 'Escape') setSelectedTopicId(null);
+     <SubjectNotebook subject={subject} />
+     {selectedTopic && <dialog open ref={node => { if (node && !node.dataset.focused) { node.dataset.focused = 'true'; node.querySelector('button')?.focus(); } }} className="topic-content-dialog" aria-modal="true" aria-labelledby="topic-content-title" onCancel={() => {
+       setLocalSelectedTopicId(null);
+       window.location.hash = contentHref('subject', subject.id);
+     }} onKeyDown={event => {
+      if (event.key === 'Escape') {
+        setLocalSelectedTopicId(null);
+        window.location.hash = contentHref('subject', subject.id);
+      }
       if (event.key === 'Tab') {
         const controls = [...event.currentTarget.querySelectorAll('button, a[href]')];
         const first = controls[0];
@@ -77,13 +89,14 @@ export function SubjectPage(props) {
       }
     }}>
       <button className="secondary-button" onClick={() => {
-        setSelectedTopicId(null);
+        setLocalSelectedTopicId(null);
+        window.location.hash = contentHref('subject', subject.id);
         document.querySelector(`[aria-label="Open ${selectedTopic.title}"]`)?.focus();
       }}>Close</button>
       <h2 id="topic-content-title">{selectedTopic.title}</h2>
       <p>{selectedTopic.description}</p>
-      {topicLessons.length > 0 && <><h3>Lessons</h3><div className="topic-content-links">{topicLessons.map(lesson => <a key={lesson.id} href={contentHref('lesson', lesson.id)} onClick={() => setSelectedTopicId(null)}><BookOpen size={18} /><span><strong>{lesson.title}</strong><small>{lesson.summary}</small></span><ChevronRight size={18} /></a>)}</div></>}
-      {topicQuestions.length > 0 && <><h3>Interview questions ({topicQuestions.length})</h3><div className="topic-content-links">{topicQuestions.map(question => <a key={question.id} href={contentHref('question', question.id)} onClick={() => setSelectedTopicId(null)}><Target size={18} /><span>{question.prompt}</span><ChevronRight size={18} /></a>)}</div></>}
+      {topicLessons.length > 0 && <><h3>Lessons</h3><div className="topic-content-links">{topicLessons.map(lesson => <a key={lesson.id} href={contentHref('lesson', lesson.id, '', { returnTo: `${contentHref('subject', subject.id)}?topic=${encodeURIComponent(selectedTopic.id)}` })}><BookOpen size={18} /><span><strong>{lesson.title}</strong><small>{lesson.summary}</small></span><ChevronRight size={18} /></a>)}</div></>}
+      {topicQuestions.length > 0 && <><h3>Interview questions ({topicQuestions.length})</h3><div className="topic-content-links">{topicQuestions.map(question => <a key={question.id} href={contentHref('question', question.id, '', { returnTo: `${contentHref('subject', subject.id)}?topic=${encodeURIComponent(selectedTopic.id)}` })}><Target size={18} /><span>{question.prompt}</span><ChevronRight size={18} /></a>)}</div></>}
       {!topicLessons.length && !topicQuestions.length && <p>Planned topic — lessons and interview questions will appear here when published.</p>}
     </dialog>}
   </>;
