@@ -1,19 +1,13 @@
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CONTENT } from '../data';
 import { contentHref, practiceHref, lessonQuestions, contentItem } from '../content/adapter';
+import ContentEditor from './ContentEditor';
 
-const wideScreen = () => window.matchMedia('(min-width: 769px)').matches;
-const subscribeScreen = callback => {
-  const media = window.matchMedia('(min-width: 769px)');
-  media.addEventListener('change', callback);
-  return () => media.removeEventListener('change', callback);
-};
-
-export default function LessonReader({ lesson, section = '', returnTo = '' }) {
-  const [loaded, setLoaded] = useState(null);
+export default function LessonReader({ lesson, section = '', returnTo = '', content = CONTENT, editedHtml, onSave, completed, onToggleCompletion }) {
+  const [loaded, setLoaded] = useState(() => lesson?.html !== undefined ? { id: lesson.id, html: lesson.html } : null);
+  const [editing, setEditing] = useState(false);
   const [failure, setFailure] = useState(null);
   const article = useRef(null);
-  const wide = useSyncExternalStore(subscribeScreen, wideScreen);
   const id = lesson?.id;
   const url = lesson?.payloadUrl;
 
@@ -39,10 +33,10 @@ export default function LessonReader({ lesson, section = '', returnTo = '' }) {
   }, [id, loaded, section]);
 
   if (!lesson) return <section><a href="#/home">Back</a><p role="alert">Lesson not found.</p></section>;
-  const questions = lessonQuestions(CONTENT, lesson.id);
-  const prerequisites = lesson.prerequisiteIds.map(id => contentItem(CONTENT, id)).filter(Boolean);
+  const questions = lessonQuestions(content, lesson.id);
+  const prerequisites = lesson.prerequisiteIds.map(id => contentItem(content, id)).filter(Boolean);
   const related = lesson.relatedIds.filter(id => !questions.some(q => q.id === id))
-    .map(id => contentItem(CONTENT, id)).filter(Boolean);
+    .map(id => contentItem(content, id)).filter(Boolean);
   const topic = CONTENT.topics.find(t => t.id === lesson.topicId);
   const subject = CONTENT.subjects.find(s => s.id === lesson.subjectId);
   const relatedHref = item => item.kind === 'question'
@@ -51,7 +45,13 @@ export default function LessonReader({ lesson, section = '', returnTo = '' }) {
 
   return (
     <article className="lesson-reader" ref={article} tabIndex={-1}>
-      <a href={returnTo || contentHref('subject', lesson.subjectId)} className="btn-action lesson-back">← Back</a>
+      <div className="lesson-toolbar">
+        <a href={returnTo || contentHref('subject', lesson.subjectId)} className="lesson-back">← Back</a>
+        <div className="lesson-toolbar-actions">
+          {loaded?.id === id && !editing && <button className="lesson-action lesson-action-outline" onClick={() => setEditing(true)}>Edit lesson</button>}
+          <button className="lesson-action lesson-action-primary" onClick={onToggleCompletion}>{completed ? '✓ Completed — mark incomplete' : 'Mark lesson complete'}</button>
+        </div>
+      </div>
       <p className="lesson-breadcrumb">{subject?.title} / {topic?.title}</p>
       {lesson.status === 'draft' && <span className="badge badge-freq">Draft — local preview</span>}
       <h2>{lesson.title}</h2>
@@ -60,19 +60,12 @@ export default function LessonReader({ lesson, section = '', returnTo = '' }) {
         <strong>Before this lesson</strong>
         <ul>{prerequisites.map(item => <li key={item.id}><a href={contentHref('lesson', item.id)}>{item.label}</a></li>)}</ul>
       </nav>}
-      <details className="lesson-toc" key={wide ? 'wide' : 'mobile'} open={wide}>
-        <summary>Contents</summary>
-        <nav aria-label="Lesson sections" onClick={event => {
-          if (!wide && event.target.closest('a')) event.currentTarget.closest('details').open = false;
-        }}>
-          {lesson.sections.filter(s => s.level === 2).map(s => (
-            <a key={s.id} href={contentHref('lesson', lesson.id, s.id)}>{s.title}</a>
-          ))}
-          {questions.length > 0 && <a href={contentHref('lesson', lesson.id, 'interview-practice')}>Interview practice</a>}
-        </nav>
-      </details>
       {failure?.id === id ? <p role="alert">{failure.message} Reload to retry.</p>
-        : loaded?.id === id ? <div className="lesson-body" dangerouslySetInnerHTML={{ __html: loaded.html }} />
+        : loaded?.id === id ? <>
+          {editing ? <ContentEditor html={editedHtml ?? loaded.html} onSave={({ html }) => { onSave(html); setEditing(false); }} onCancel={() => setEditing(false)} /> : <>
+            <div className="lesson-body" dangerouslySetInnerHTML={{ __html: editedHtml ?? loaded.html }} />
+          </>}
+        </>
           : <p role="status">Loading lesson…</p>}
       {questions.length > 0 && <section id="interview-practice" tabIndex={-1} className="lesson-practice">
         <h3>Interview practice</h3>

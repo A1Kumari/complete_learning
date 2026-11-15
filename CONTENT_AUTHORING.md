@@ -252,6 +252,16 @@ descriptions fall back to the existing `example` field. Attempts now count
 transitions into Practicing, not every repeated status click or mastery change;
 previously stored attempt counts are retained, not recalculated.
 
+### System Design publication
+
+The System Design subject now includes 39 lessons and 39 new interview questions
+covering its 35 existing topics. The end-to-end module includes separate URL
+shortener, chat, payments, notifications, and news-feed case studies. Sources are
+under `content/subjects/sys/`; coverage and technical qualifications are recorded in
+`docs/curriculum/system-design-publication-review.md`. Execute the actual standalone
+Python examples with `python3 scripts/check-system-design-examples.py` (standard
+library only). Existing legacy question identities remain additive and unchanged.
+
 For AI-assisted drafting, supply the schema, existing IDs/concepts, and one topic's
 learning objectives. Validate a small batch, check claims and references, review
 code examples and rendered diagrams, then publish. Structural validation does not

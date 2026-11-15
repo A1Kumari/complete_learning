@@ -195,13 +195,14 @@ test('compatibility baselines are migration-only and require a live Markdown sou
 
 test('old full datasets migrate against mixed content without false recovery for formatting changes', () => {
   const groups = toSubjectGroups(compiled.catalog);
-  const legacy = groups.map(subject => ({ ...subject, questions: subject.questions.map(q => {
+  const historicalIds = new Set(LEGACY_REFERENCE.map(question => question.id));
+  const legacy = groups.map(subject => ({ ...subject, questions: subject.questions.filter(q => historicalIds.has(q.id)).map(q => {
     const original = actual.baselines[q.id] || q;
     const content = { ...original };
     for (const key of ['id', 'subjectId', 'order', 'lessonId']) delete content[key];
     return { ...content, notes: `Note for ${q.id}`, status: 'comfortable' };
-  }).filter(q => LEGACY_REFERENCE.some(original => original.topicId === subject.id && original.hash
-    && (actual.baselines[subject.questions.find(item => item.q === q.q)?.id] || subject.questions.find(item => item.q === q.q)))) }));
+  }) }));
+  assert.equal(legacy.flatMap(subject => subject.questions).length, LEGACY_REFERENCE.length);
   const raw = { 'cs-learning-data': JSON.stringify(legacy), 'dsa-templates': null, 'dsa-notes': null };
   const { personal, summary } = migrateLegacy(raw, groups, actual.templates, LEGACY_REFERENCE, compiled.catalog.migrationBaselines);
   assert.equal(summary.matched, 190);
@@ -231,7 +232,7 @@ test('subject-scoped custom questions, notes, statuses, deletion markers and bac
   p = deleteQuestion(p, 'os-q003');
   const view = deriveTopics(groups, p)[0];
   assert.equal(view.id, 'os');
-  assert.equal(view.questions.length, 30);
+  assert.equal(view.questions.length, groups[0].questions.length);
   assert.ok(!view.questions.some(q => q.id === 'os-q003'));
   assert.equal(view.questions.find(q => q.id === 'os-q001').notes, 'Keep note');
   assert.equal(view.questions.find(q => q.id === 'os-q001').status, 'mastered');
@@ -272,4 +273,18 @@ test('stable routes encode IDs/sections and reject malformed route encodings', (
   const questionHref = contentHref('question', 'python-q001', '', { returnTo });
   assert.equal(parseContentRoute(questionHref).returnTo, returnTo);
   assert.deepEqual(parseContentRoute(returnTo), { kind: 'subject', id: 'python', topicId: 'python-basics' });
+});
+
+test('personal section routes preserve full-page reading and editing destinations', () => {
+  const base = '#/subject/dsa?notebook=section%20one';
+  assert.deepEqual(parseContentRoute(base), {
+    kind: 'subject', id: 'dsa', notebookSectionId: 'section one', notebookItemId: '', notebookEdit: '',
+  });
+  for (const edit of ['section', 'content', 'add']) {
+    assert.deepEqual(parseContentRoute(`${base}&entry=entry%2Fone&edit=${edit}`), {
+      kind: 'subject', id: 'dsa', notebookSectionId: 'section one', notebookItemId: 'entry/one', notebookEdit: edit,
+    });
+  }
+  assert.equal(parseContentRoute(`${base}&edit=unknown`).notebookEdit, '');
+  assert.deepEqual(parseContentRoute('#/subject/dsa?entry=orphan&edit=content'), { kind: 'subject', id: 'dsa' });
 });

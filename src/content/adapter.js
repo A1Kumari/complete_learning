@@ -48,7 +48,11 @@ export function parseContentRoute(hash) {
     const page = /^#\/(home|progress|notes|subject|practice)(?:\/([^/]+))?$/.exec(pathname);
     if (page) return page[1] === 'home'
       ? { kind: 'home' }
-      : { kind: page[1], id: decodeURIComponent(page[2]), ...(page[1] === 'subject' && params.has('topic') ? { topicId: params.get('topic') } : {}) };
+      : { kind: page[1], id: decodeURIComponent(page[2]), ...(page[1] === 'subject' && params.has('topic') ? { topicId: params.get('topic') } : {}),
+        ...(page[1] === 'subject' && params.has('notebook') ? {
+          notebookSectionId: params.get('notebook'), notebookItemId: params.get('entry') || '',
+          notebookEdit: ['section', 'content', 'add'].includes(params.get('edit')) ? params.get('edit') : '',
+        } : {}) };
     const match = /^#\/(lesson|question)\/([^/]+)(?:\/([^/]+))?$/.exec(pathname);
     if (!match) return null;
     const returnTo = params.get('from');

@@ -3,10 +3,11 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { LEGACY_REFERENCE, fingerprint } from './legacyReference.js';
 import { toSubjectGroups } from './content/adapter.js';
+import { personalCatalog, renderPersonalMarkdown } from './content/personalCatalog.js';
 import {
   PERSONAL_KEY, BACKUP_PREFIX, LEGACY_KEYS, emptyPersonal, migrateLegacy,
   deriveTopics, deriveTemplates, openPersonalStore, validatePersonal, validateContent,
-  updateQuestion, deleteQuestion, updateTemplateStatus, parseBackup,
+  updateQuestion, updateQuestionContent, updateLessonContent, addTopicLesson, hideTopicLesson, addTopicQuestion, deleteQuestion, updateTemplateStatus, parseBackup,
 } from './personalData.js';
 
 const json = name => JSON.parse(readFileSync(new URL(`./data/${name}.json`, import.meta.url), 'utf8'));
@@ -30,6 +31,40 @@ class MemoryStorage {
   }
 }
 const backupValues = storage => [...storage.entries].filter(([k]) => k.startsWith(BACKUP_PREFIX)).map(([, v]) => v);
+
+test('topic additions and deletions survive backup and appear consistently in the catalog', () => {
+  const storage = new MemoryStorage();
+  const store = openPersonalStore(storage, topics, ts);
+  const lesson = { id: 'custom-lesson-1', topicId: 'test-topic', subjectId: 'test', title: 'My lesson', markdown: '## Example\n\n<script>bad</script>' };
+  const question = { id: 'custom-question-1', topicId: 'test', q: 'My question?', a: renderPersonalMarkdown('**Answer**'), d: 'm', freq: false };
+  let personal = addTopicQuestion(addTopicLesson(store.personal, lesson), question, 'test-topic');
+  personal = hideTopicLesson(deleteQuestion(personal, q.id), 'old-lesson');
+  store.save(personal);
+  const restored = openPersonalStore(new MemoryStorage(), topics, ts).restore(store.export(personal));
+  const catalog = personalCatalog({ lessons: [{ id: 'old-lesson' }], questions: [{ id: q.id }] }, restored);
+  assert.deepEqual(catalog.lessons.map(item => item.id), [lesson.id]);
+  assert.ok(catalog.lessons[0].html.includes('&lt;script&gt;'));
+  assert.equal(catalog.questions[0].topicId, 'test-topic');
+  assert.equal(deriveTopics(topics, restored)[0].questions.find(item => item.id === question.id).q, question.q);
+  assert.throws(() => validatePersonal({ ...personal, hiddenLessonIds: ['bad id'] }));
+});
+
+test('question and lesson edits survive reload and backup restore', () => {
+  const storage = new MemoryStorage();
+  const store = openPersonalStore(storage, topics, ts);
+  let personal = updateQuestion(store.personal, q.id, { notes: 'Existing note', status: 'learning' });
+  personal = updateQuestionContent(personal, q.id, { q: 'Edited question?', a: '<p>Edited answer</p>' });
+  personal = updateLessonContent(personal, 'lesson-one', '<p>Edited lesson</p>');
+  store.save(personal);
+  const reloaded = openPersonalStore(storage, topics, ts);
+  assert.equal(deriveTopics(topics, reloaded.personal)[0].questions[0].q, 'Edited question?');
+  assert.equal(deriveTopics(topics, reloaded.personal)[0].questions[0].notes, 'Existing note');
+  const restoredStore = openPersonalStore(new MemoryStorage(), topics, ts);
+  const restored = restoredStore.restore(reloaded.export(reloaded.personal));
+  assert.equal(restored.questionEdits[q.id].a, '<p>Edited answer</p>');
+  assert.equal(restored.lessonEdits['lesson-one'], '<p>Edited lesson</p>');
+  assert.throws(() => validatePersonal({ ...personal, questionEdits: { [q.id]: { q: '', a: 'x' } } }));
+});
 
 test('template attempts count practice starts, not repeated status clicks or mastery changes', () => {
   let p = updateTemplateStatus(emptyPersonal(), 'dfs', 'practicing');

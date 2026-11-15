@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
-const DSAQATable = ({ questions }) => {
-  const [expandedRow, setExpandedRow] = useState(null);
+const DSAQATable = ({ questions, onEdit, initialQuestionId }) => {
+  const [expandedRow, setExpandedRow] = useState(initialQuestionId || null);
 
   if (!questions || questions.length === 0) {
     return <div style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>No questions available</div>;
@@ -22,7 +22,7 @@ const DSAQATable = ({ questions }) => {
           const qId = q.id;
           const isExpanded = expandedRow === qId;
           return (
-            <div key={qId}>
+            <div key={qId} id={`question-${qId}`} tabIndex={-1}>
               <div 
                 className="table-row"
                 onClick={() => setExpandedRow(isExpanded ? null : qId)}
@@ -50,6 +50,7 @@ const DSAQATable = ({ questions }) => {
                       className="answer-content"
                       dangerouslySetInnerHTML={{ __html: q.a }}
                     />
+                    <button className="btn-action" onClick={() => onEdit(q)}>Edit question &amp; answer</button>
 
                     {q.cross && q.cross.length > 0 && (
                       <div className="cross-ref-section">

@@ -36,7 +36,14 @@ function validQuestion(q) {
 // Strict validation for the NEW format. Unknown fields/versions are not silently discarded.
 export function validatePersonal(value) {
   assert(record(value) && [1, 2, 3].includes(value.schemaVersion), 'Unsupported personal-data version. Original storage is untouched.');
-  assert(fields(value, ['schemaVersion', 'questionState', 'customQuestions', 'hiddenQuestionIds', 'templateState', 'recovery', ...(value.schemaVersion >= 2 ? ['completedLessonIds', 'studyDays'] : []), ...(value.schemaVersion === 3 ? ['completedStudyDays'] : [])]), 'Unknown personal-data fields.');
+  assert(fields(value, ['schemaVersion', 'questionState', 'customQuestions', 'hiddenQuestionIds', 'templateState', 'recovery', ...(value.schemaVersion >= 2 ? ['completedLessonIds', 'studyDays'] : []), ...(value.schemaVersion === 3 ? ['completedStudyDays', 'questionEdits', 'lessonEdits', 'customLessons', 'hiddenLessonIds', 'questionTopicIds'] : [])]), 'Unknown personal-data fields.');
+  if (value.questionEdits !== undefined) assert(record(value.questionEdits) && Object.entries(value.questionEdits).every(([id, edit]) => safeId(id) && record(edit) && fields(edit, ['q', 'a']) && typeof edit.q === 'string' && edit.q.trim() && typeof edit.a === 'string'), 'Invalid question edits.');
+  if (value.lessonEdits !== undefined) assert(record(value.lessonEdits) && Object.entries(value.lessonEdits).every(([id, html]) => safeId(id) && typeof html === 'string'), 'Invalid lesson edits.');
+  if (value.customLessons !== undefined) {
+    assert(Array.isArray(value.customLessons) && value.customLessons.every(lesson => record(lesson) && fields(lesson, ['id', 'topicId', 'subjectId', 'title', 'markdown']) && safeId(lesson.id) && lesson.id.startsWith('custom-lesson-') && safeId(lesson.topicId) && safeId(lesson.subjectId) && typeof lesson.title === 'string' && lesson.title.trim() && typeof lesson.markdown === 'string' && lesson.markdown.trim()) && new Set(value.customLessons.map(lesson => lesson.id)).size === value.customLessons.length, 'Invalid custom lessons.');
+  }
+  if (value.hiddenLessonIds !== undefined) assert(Array.isArray(value.hiddenLessonIds) && value.hiddenLessonIds.every(safeId) && new Set(value.hiddenLessonIds).size === value.hiddenLessonIds.length, 'Invalid hidden lesson IDs.');
+  if (value.questionTopicIds !== undefined) assert(record(value.questionTopicIds) && Object.entries(value.questionTopicIds).every(([id, topicId]) => safeId(id) && id.startsWith('custom-') && safeId(topicId)), 'Invalid question topic IDs.');
   if (value.schemaVersion >= 2) {
     assert(Array.isArray(value.completedLessonIds) && value.completedLessonIds.every(safeId) && new Set(value.completedLessonIds).size === value.completedLessonIds.length, 'Invalid lesson completion IDs.');
     assert(record(value.studyDays) && Object.entries(value.studyDays).every(([day, seconds]) => /^\d{4}-\d{2}-\d{2}$/.test(day) && new Date(`${day}T12:00:00Z`).toISOString().slice(0, 10) === day && Number.isSafeInteger(seconds) && seconds > 0), 'Invalid study activity.');
@@ -195,7 +202,27 @@ export function deriveTopics(topics, personal) {
   return topics.map(topic => ({ ...topic, questions: [
     ...topic.questions.filter(q => !hidden.has(q.id)),
     ...personal.customQuestions.filter(q => q.topicId === topic.id && !hidden.has(q.id)),
-  ].map(q => ({ ...q, notes: '', status: 'not-started', ...personal.questionState[q.id] })) }));
+  ].map(q => ({ ...q, ...personal.questionEdits?.[q.id], notes: '', status: 'not-started', ...personal.questionState[q.id] })) }));
+}
+
+export function updateQuestionContent(personal, id, content) {
+  return { ...personal, questionEdits: { ...personal.questionEdits, [id]: content } };
+}
+
+export function updateLessonContent(personal, id, html) {
+  return { ...personal, lessonEdits: { ...personal.lessonEdits, [id]: html } };
+}
+
+export function addTopicLesson(personal, lesson) {
+  return { ...personal, customLessons: [...(personal.customLessons || []), lesson] };
+}
+
+export function hideTopicLesson(personal, id) {
+  return { ...personal, hiddenLessonIds: [...new Set([...(personal.hiddenLessonIds || []), id])] };
+}
+
+export function addTopicQuestion(personal, question, topicId) {
+  return { ...personal, customQuestions: [...personal.customQuestions, question], questionTopicIds: { ...personal.questionTopicIds, [question.id]: topicId } };
 }
 
 export function deriveTemplates(templates, personal) {

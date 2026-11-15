@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef, useSyncExternalStore } from 'react';
-import { BookOpen, Edit3, Plus, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { Edit3, Plus, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { D, TOPICS, DSA_TEMPLATES, CONTENT, MIGRATION_BASELINES } from './data';
 import LessonReader from './components/LessonReader';
 import { contentHref, parseContentRoute } from './content/adapter';
 import DSATemplatesList from './components/DSATemplatesList';
 import DSAQATable from './components/DSAQATable';
-import { openPersonalStore, deriveTopics, deriveTemplates, updateQuestion, deleteQuestion, updateTemplateStatus, updateTemplateNote, parseBackup } from './personalData';
+import { openPersonalStore, deriveTopics, deriveTemplates, updateQuestion, updateQuestionContent, updateLessonContent, updateTemplateStatus, addTopicLesson, hideTopicLesson, addTopicQuestion, deleteQuestion, parseBackup } from './personalData';
+import { personalCatalog, renderPersonalMarkdown } from './content/personalCatalog';
 import LearningShell from './components/LearningShell';
 import { localDay, shouldTrackStudy } from './studyProgress';
 import ProgressPage from './components/ProgressPage';
-import { DashboardPage, SubjectPage, UpcomingPractice, NotesPage } from './components/LearningPages';
+import { DashboardPage, SubjectPage, UpcomingPractice } from './components/LearningPages';
+import ContentEditor from './components/ContentEditor';
 import './App.css';
 
 const STATUS_OPTIONS = [
@@ -29,20 +31,16 @@ const getHash = () => window.location.hash;
 const App = () => {
   const hash = useSyncExternalStore(subscribeHash, getHash);
   const route = useMemo(() => parseContentRoute(hash) || { kind: 'home' }, [hash]);
-  const lesson = route?.kind === 'lesson' ? CONTENT.lessons.find(l => l.id === route.id) : null;
-  const routedQuestion = route?.kind === 'question' ? CONTENT.questions.find(q => q.id === route.id) : null;
   const isLesson = route?.kind === 'lesson';
-  const [selectedTopic, setActiveTopic] = useState(() => lesson?.subjectId || routedQuestion?.subjectId || 'os');
-  const activeTopic = lesson?.subjectId || routedQuestion?.subjectId || (route?.kind === 'practice' ? route.id : null) || selectedTopic;
+  const [selectedTopic, setActiveTopic] = useState('os');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedQuestions, setExpandedQuestions] = useState(new Set());
   const routedAnswerVisible = route?.kind === 'question' && (!route.practice || expandedQuestions.has(route.id));
-  const returnLesson = route?.returnTo ? CONTENT.lessons.find(item => item.id === parseContentRoute(route.returnTo)?.id) : null;
   const [activeQuestionKey, setActiveQuestionKey] = useState(null);
-  const [showNotes, setShowNotes] = useState(false);
+  const [editingQuestion, setEditingQuestion] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newQuestion, setNewQuestion] = useState({
-    q: '', a: '', d: 'e', freq: false, notes: '', trap: '', cross: '', status: 'not-started'
+    q: '', a: '', d: 'e', freq: false, trap: '', cross: '', status: 'not-started'
   });
 
   const [store] = useState(() => {
@@ -61,15 +59,12 @@ const App = () => {
   const [backupMessage, setBackupMessage] = useState('');
   const [migrationSummary, setMigrationSummary] = useState(store.summary);
   const data = useMemo(() => deriveTopics(D, personal), [personal]);
+  const displayContent = useMemo(() => personalCatalog(CONTENT, personal), [personal]);
+  const lesson = route?.kind === 'lesson' ? displayContent.lessons.find(item => item.id === route.id) : null;
+  const routedQuestion = route?.kind === 'question' ? displayContent.questions.find(item => item.id === route.id) : null;
+  const activeTopic = lesson?.subjectId || routedQuestion?.subjectId || (route?.kind === 'practice' || route?.kind === 'subject' ? route.id : null) || selectedTopic;
+  const returnLesson = route?.returnTo ? displayContent.lessons.find(item => item.id === parseContentRoute(route.returnTo)?.id) : null;
   const dsaTemplatesWithNotes = useMemo(() => deriveTemplates(DSA_TEMPLATES.templates, personal), [personal]);
-  const savedNotes = useMemo(() => [
-    ...data.flatMap(topic => topic.questions.filter(question => question.notes?.trim()).map(question => ({
-      id: `question:${question.id}`, kind: 'question', title: question.q, subject: topic.title, body: question.notes, sourceId: question.id,
-    }))),
-    ...dsaTemplatesWithNotes.filter(template => template.notes?.trim()).map(template => ({
-      id: `template:${template.id}`, kind: 'template', title: template.name, subject: 'DSA', body: template.notes, sourceId: template.id,
-    })),
-  ], [data, dsaTemplatesWithNotes]);
 
   // Commit migration after mount, with cancellation for Strict Mode's trial effect.
   useEffect(() => {
@@ -84,7 +79,7 @@ const App = () => {
 
   useEffect(() => {
     const resetView = () => {
-      setSearchQuery(''); setShowNotes(false); setActiveQuestionKey(null);
+      setSearchQuery(''); setEditingQuestion(null); setActiveQuestionKey(null);
       setExpandedQuestions(new Set());
       const next = parseContentRoute(window.location.hash);
       const target = next?.kind === 'lesson' ? CONTENT.lessons.find(item => item.id === next.id)
@@ -195,7 +190,6 @@ const App = () => {
     });
   };
 
-  const updateNote = (id, text) => commit(updateQuestion(personal, id, { notes: text }));
   const updateStatus = (id, status) => commit(updateQuestion(personal, id, { status }));
 
   const handleAddQuestion = () => {
@@ -215,16 +209,10 @@ const App = () => {
     };
 
     commit(updateQuestion({ ...personal, customQuestions: [...personal.customQuestions, questionToAdd] }, questionToAdd.id,
-      { notes: newQuestion.notes.trim(), status: newQuestion.status || 'not-started' }));
+      { status: newQuestion.status || 'not-started' }));
 
-    setNewQuestion({ q: '', a: '', d: 'e', freq: false, notes: '', trap: '', cross: '', status: 'not-started' });
+    setNewQuestion({ q: '', a: '', d: 'e', freq: false, trap: '', cross: '', status: 'not-started' });
     setShowAddModal(false);
-  };
-
-  const handleDeleteQuestion = (id) => {
-    if (!window.confirm('Delete this question?')) return;
-    commit(deleteQuestion(personal, id));
-    setActiveQuestionKey(null);
   };
 
   const filteredQuestions = useMemo(() => {
@@ -244,11 +232,6 @@ const App = () => {
       );
   }, [data, activeTopic, searchQuery]);
 
-  const activeQuestion = useMemo(() => {
-    if (!activeQuestionKey) return null;
-    return filteredQuestions.find(q => q.key === activeQuestionKey) || null;
-  }, [activeQuestionKey, filteredQuestions]);
-
   // Progress stats for current topic
   const progressStats = useMemo(() => {
     const total = filteredQuestions.length;
@@ -267,10 +250,6 @@ const App = () => {
     commit(updateTemplateStatus(personal, templateId, newStatus));
   };
 
-  const updateSavedNote = (note, text) => commit(note.kind === 'question'
-    ? updateQuestion(personal, note.sourceId, { notes: text })
-    : updateTemplateNote(personal, note.sourceId, text));
-
   const activeSubject = CONTENT.subjects.find(subject => subject.id === activeTopic) || CONTENT.subjects[0];
   const backupActions = <>
     <button className="header-icon-action" onClick={exportBackup} title="Export backup">Export</button>
@@ -278,24 +257,29 @@ const App = () => {
   </>;
 
   return (
-    <LearningShell subjects={CONTENT.subjects} activeSubject={activeSubject?.id} searchQuery={searchQuery} onSearch={setSearchQuery} legacyActions={backupActions}>
-      {route?.kind === 'home' ? <DashboardPage subjects={CONTENT.subjects} data={data} content={CONTENT} />
-        : route?.kind === 'progress' ? <ProgressPage subjects={CONTENT.subjects} data={data} content={CONTENT} personal={personal} onMarkStudyDay={markStudyDayComplete} />
-        : route?.kind === 'notes' ? <NotesPage notes={savedNotes} onUpdate={updateSavedNote} />
-        : route?.kind === 'subject' ? <SubjectPage subject={CONTENT.subjects.find(subject => subject.id === route.id) || CONTENT.subjects[0]} data={data} content={CONTENT} topicId={route.topicId} />
-        : route?.kind === 'lesson' ? <div className="lesson-page-frame">{lesson && <button className="secondary-button" onClick={toggleLessonCompletion}>{personal.completedLessonIds.includes(lesson.id) ? '✓ Completed — mark incomplete' : 'Mark lesson complete'}</button>}<LessonReader key={lesson?.id || 'missing'} lesson={lesson} section={route.section} returnTo={route.returnTo} /></div>
+    <LearningShell subjects={CONTENT.subjects} activeSubject={['subject', 'lesson', 'practice', 'question'].includes(route.kind) ? activeSubject?.id : null} searchQuery={searchQuery} onSearch={setSearchQuery} legacyActions={backupActions}>
+      {storageError && <div className="info-box trap-box" role="alert">{storageError} Edits remain available to export in this tab. <button className="btn-action" onClick={() => commit(personal)}>Retry Save</button></div>}
+      {route?.kind === 'home' || route?.kind === 'notes' ? <DashboardPage subjects={CONTENT.subjects} data={data} content={displayContent} />
+        : route?.kind === 'progress' ? <ProgressPage subjects={CONTENT.subjects} data={data} content={displayContent} personal={personal} onMarkStudyDay={markStudyDayComplete} />
+        : route?.kind === 'subject' ? <SubjectPage subject={CONTENT.subjects.find(subject => subject.id === route.id) || CONTENT.subjects[0]} data={data} content={displayContent} topicId={route.topicId}
+          notebookSectionId={route.notebookSectionId} notebookItemId={route.notebookItemId} notebookEdit={route.notebookEdit}
+          onAddTopicItem={(topic, kind, title, body) => {
+            const id = `custom-${kind}-${crypto.randomUUID()}`;
+            const current = latestPersonal.current;
+            commit(kind === 'lesson'
+              ? addTopicLesson(current, { id, topicId: topic.id, subjectId: topic.subjectId, title, markdown: body })
+              : addTopicQuestion(current, { id, topicId: topic.subjectId, q: title, a: renderPersonalMarkdown(body), d: 'm', freq: false }, topic.id));
+          }}
+          onDeleteTopicItem={(kind, id) => commit(kind === 'lesson' ? hideTopicLesson(latestPersonal.current, id) : deleteQuestion(latestPersonal.current, id))} />
+        : route?.kind === 'lesson' ? <div className="lesson-page-frame"><LessonReader key={lesson?.id || 'missing'} lesson={lesson} section={route.section} returnTo={route.returnTo} content={displayContent} editedHtml={personal.lessonEdits?.[lesson?.id]} onSave={html => commit(updateLessonContent(latestPersonal.current, lesson.id, html))} completed={lesson && personal.completedLessonIds.includes(lesson.id)} onToggleCompletion={toggleLessonCompletion} /></div>
         : route?.kind === 'practice' && filteredQuestions.length === 0 ? <UpcomingPractice subject={CONTENT.subjects.find(subject => subject.id === route.id)} />
         : <div className="legacy-workspace">
-      <div className={`app-container ${showNotes ? 'notes-open' : ''}`}>
+      <div className="app-container">
       <div className="main-content">
         <a className="question-back" href={route.returnTo || contentHref('subject', activeSubject.id)}>← Back to sections</a>
         <header>
           {CONTENT.draftPreview && <p className="preview-banner" role="status">Local draft preview — unpublished content. Production builds exclude drafts.</p>}
 
-          {storageError && <div className="info-box trap-box" role="alert">
-            {storageError} Edits remain available to export in this tab.
-            <button className="btn-action" onClick={() => commit(personal)}>Retry Save</button>
-          </div>}
           {backupMessage && <p role="status">{backupMessage}</p>}
           {personal.recovery.length > 0 && (
             <details className="info-box cross-ref">
@@ -373,7 +357,7 @@ const App = () => {
           </p>}
           {activeTopic === 'dsa' ? (
             <div>
-              <DSAQATable questions={filteredQuestions} />
+              <DSAQATable key={route.kind === 'question' ? route.id : 'practice'} questions={filteredQuestions} onEdit={setEditingQuestion} initialQuestionId={route.kind === 'question' ? route.id : null} />
               <div style={{ marginTop: '3rem' }}>
                 <h3 className="section-title">Practice Templates</h3>
                 <DSATemplatesList
@@ -472,26 +456,12 @@ const App = () => {
                         </div>
 
                         <div className="question-actions">
-                          {q.lessonId && <a className="btn-action" href={contentHref('lesson', q.lessonId)}>Read lesson</a>}
                           <button
                             className="btn-action"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setActiveQuestionKey(q.key);
-                              setShowNotes(true);
-                            }}
+                            onClick={() => setEditingQuestion(q)}
                           >
                             <Edit3 size={14} />
-                            {q.notes ? 'Edit Notes' : 'Add Notes'}
-                          </button>
-                          <button
-                            className="btn-action btn-delete"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteQuestion(q.id);
-                            }}
-                          >
-                            <X size={14} /> Delete
+                            Edit question &amp; answer
                           </button>
                         </div>
                       </div>
@@ -510,43 +480,12 @@ const App = () => {
         </div>
       </div>
 
-      {/* Notes Panel */}
-      {activeTopic !== 'dsa' && !isLesson && showNotes && (
-        <div className="notes-panel show-on-mobile">
-          <div className="notes-header">
-            <span>{activeQuestion ? 'Note Taking' : 'Notes'}</span>
-            <button className="btn-close-notes" onClick={() => { setShowNotes(false); setActiveQuestionKey(null); }}>
-              <X size={18} />
-            </button>
-          </div>
-          <div className="notes-content">
-            {activeQuestion ? (
-              <div>
-                <div className="notes-question-info">
-                  <span className="badge badge-freq">{activeQuestion.topicId.toUpperCase()}</span>
-                  <h3>{activeQuestion.q}</h3>
-                </div>
-                <textarea
-                  className="note-editor"
-                  placeholder="Write your notes here..."
-                  value={activeQuestion.notes || ''}
-                  onChange={(e) =>
-                    updateNote(activeQuestion.id, e.target.value)
-                  }
-                />
-                <p className="notes-save-hint">
-                  {storageError ? 'Notes are not saved. Export a backup or retry saving.' : 'Notes are automatically saved.'}
-                </p>
-              </div>
-            ) : (
-              <div className="empty-notes">
-                <BookOpen size={48} strokeWidth={1} />
-                <p>Select a question to view or add notes.</p>
-              </div>
-            )}
-          </div>
+      {editingQuestion && <div className="modal-overlay" onClick={() => setEditingQuestion(null)}>
+        <div className="modal" role="dialog" aria-modal="true" aria-labelledby="edit-question-title" onClick={event => event.stopPropagation()}>
+          <div className="modal-header"><h2 id="edit-question-title">Edit question &amp; answer</h2><button className="btn-close" aria-label="Close" onClick={() => setEditingQuestion(null)}><X size={20} /></button></div>
+          <div className="modal-body"><ContentEditor title={editingQuestion.q} html={editingQuestion.a} onCancel={() => setEditingQuestion(null)} onSave={({ title, html }) => { commit(updateQuestionContent(latestPersonal.current, editingQuestion.id, { q: title, a: html })); setEditingQuestion(null); }} /></div>
         </div>
-      )}
+      </div>}
 
       {/* Add Question Modal */}
       {showAddModal && (
@@ -634,15 +573,6 @@ const App = () => {
                 />
               </label>
 
-              <label>
-                Notes (optional)
-                <textarea
-                  value={newQuestion.notes}
-                  onChange={(e) => setNewQuestion(prev => ({ ...prev, notes: e.target.value }))}
-                  placeholder="Your personal notes..."
-                  rows={2}
-                />
-              </label>
             </div>
             <div className="modal-footer">
               <button className="btn-cancel" onClick={() => setShowAddModal(false)}>
